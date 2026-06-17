@@ -1,6 +1,26 @@
 // Vercel serverless function — proxies browser requests to Anthropic API
 // Your API key stays server-side in ANTHROPIC_API_KEY env var
 
+import fs from 'fs';
+import path from 'path';
+
+function loadApiKey() {
+  const fromEnv = (process.env.ANTHROPIC_API_KEY || '').trim().replace(/^["']|["']$/g, '');
+  if (fromEnv) return fromEnv;
+
+  try {
+    const envPath = path.join(process.cwd(), '.env');
+    if (!fs.existsSync(envPath)) return '';
+    const line = fs.readFileSync(envPath, 'utf8')
+      .split('\n')
+      .find((l) => l.trim().startsWith('ANTHROPIC_API_KEY='));
+    if (!line) return '';
+    return line.slice(line.indexOf('=') + 1).trim().replace(/^["']|["']$/g, '');
+  } catch {
+    return '';
+  }
+}
+
 export default async function handler(req, res) {
   // CORS for safety (same-origin so technically not needed, but doesn't hurt)
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -15,7 +35,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed. Use POST.' });
   }
 
-  const apiKey = (process.env.ANTHROPIC_API_KEY || '').trim().replace(/^["']|["']$/g, '');
+  const apiKey = loadApiKey();
   if (!apiKey) {
     return res.status(500).json({
       error: 'ANTHROPIC_API_KEY env var not set. Add it in Vercel project settings → Environment Variables.'

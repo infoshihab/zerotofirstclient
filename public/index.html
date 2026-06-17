@@ -7,11 +7,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:ital,wght@0,400;0,600;0,700;0,800;1,600;1,700;1,800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
-  --red: #e90d41;
-  --red-deep: #c10836;
+  --red: #1d6ff2;
+  --red-deep: #0c4fc4;
   --ink: #0a0a0a;
   --page: #f7f7f8;
-  --pink: #fdecf1;
+  --pink: #e8f1fe;
   --yellow: #fbf3da;
   --green: #eafaf1;
   --border: #e2e2e6;
@@ -255,7 +255,7 @@ textarea, input[type="text"] {
 }
 textarea:focus, input[type="text"]:focus {
   border-color: var(--red);
-  box-shadow: 0 0 0 3px rgba(233,13,65,0.08);
+  box-shadow: 0 0 0 3px rgba(29,111,242,0.12);
 }
 textarea::placeholder, input::placeholder {
   color: #aaa;
@@ -321,12 +321,12 @@ textarea::placeholder, input::placeholder {
 .ai-assist-btn.loading::before { display: none; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* AI RESPONSE */
+/* AI RESPONSE — graphical suggestion chips */
 .ai-response {
   margin-top: 1rem;
-  background: #fff;
+  background: var(--page);
   border: 1px solid var(--border);
-  border-left: 4px solid var(--red);
+  border-left: 4px solid #22c55e;
   border-radius: 8px;
   padding: 1rem 1.25rem 1.15rem;
   display: none;
@@ -337,55 +337,80 @@ textarea::placeholder, input::placeholder {
   font-size: 0.6rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--muted);
-  margin-bottom: 0.75rem;
+  color: #166534;
+  margin-bottom: 0.85rem;
   display: flex;
   align-items: center;
   gap: 0.4rem;
   font-weight: 600;
 }
-
-/* Clean formatted Claude output */
-.ai-prose {
-  font-family: var(--body);
-  font-size: 0.92rem;
-  line-height: 1.7;
-  color: #333;
-}
-.ai-prose > *:first-child { margin-top: 0; }
-.ai-prose > *:last-child { margin-bottom: 0; }
-.ai-prose p { margin: 0 0 0.85rem; }
-.ai-prose h2,
-.ai-prose h3,
-.ai-prose h4 {
-  font-family: var(--display);
-  font-weight: 700;
-  color: var(--ink);
-  line-height: 1.35;
-  margin: 1.15rem 0 0.5rem;
-}
-.ai-prose h2 { font-size: 1.05rem; }
-.ai-prose h3 { font-size: 1rem; }
-.ai-prose h4 { font-size: 0.95rem; }
-.ai-prose ul,
-.ai-prose ol {
-  margin: 0 0 0.9rem;
-  padding-left: 1.4rem;
-}
-.ai-prose li {
-  margin-bottom: 0.45rem;
-  padding-left: 0.1rem;
-}
-.ai-prose li::marker { color: var(--red); }
-.ai-prose strong { font-weight: 600; color: var(--ink); }
-.ai-prose em { font-style: italic; }
-.ai-prose code {
+.suggest-group { margin-bottom: 1rem; }
+.suggest-group:last-child { margin-bottom: 0; }
+.suggest-group-head {
   font-family: var(--mono);
-  font-size: 0.84em;
-  background: var(--page);
+  font-size: 0.58rem;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--red);
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+.suggest-chips { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+.suggest-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: #fff;
   border: 1px solid var(--border);
-  padding: 0.1em 0.35em;
-  border-radius: 4px;
+  border-radius: 7px;
+  padding: 0.5rem 0.8rem;
+  font-size: 0.83rem;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.15s;
+  line-height: 1.35;
+  text-align: left;
+  max-width: 100%;
+}
+.suggest-chip:hover {
+  border-color: var(--red);
+  background: var(--pink);
+  transform: translateY(-1px);
+}
+.suggest-chip.added {
+  border-color: #22c55e;
+  background: var(--green);
+  color: #166534;
+}
+.suggest-chip .chip-plus {
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--red);
+  flex-shrink: 0;
+}
+.suggest-chip.added .chip-plus { color: #22c55e; }
+.suggest-chip .chip-plus::after { content: '+'; }
+.suggest-chip.added .chip-plus::after { content: '✓'; }
+.suggest-addall {
+  margin-top: 0.85rem;
+  background: var(--ink);
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.45rem 0.9rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.suggest-addall:hover { background: var(--red); }
+.suggest-empty {
+  font-size: 0.85rem;
+  color: var(--muted);
+  font-style: italic;
 }
 
 /* CONGREGATION GRID */
@@ -519,65 +544,465 @@ textarea::placeholder, input::placeholder {
 .callout.green .callout-head { color: #166534; }
 .callout-text { font-size: 0.86rem; color: #444; line-height: 1.55; }
 
-/* OUTPUT — readable blueprint blocks */
-.snippet {
-  background: #fff;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  overflow: hidden;
-  margin: 0;
-}
-.snippet-head {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 0.65rem 1rem;
-  background: var(--page);
-  border-bottom: 1px solid var(--border);
-}
-.snippet-label {
-  font-family: var(--mono);
-  font-size: 0.6rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
+/* ===== GRAPHICAL OUTPUT ===== */
+.output-block { margin-bottom: 1.75rem; }
+
+/* loading state shared */
+.viz-loading {
+  display: flex; align-items: center; gap: 0.7rem;
   color: var(--muted);
-}
-.copy-btn {
-  background: #fff;
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  color: var(--ink);
-  font-family: var(--mono);
-  font-size: 0.58rem;
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-  padding: 0.25rem 0.65rem;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-.copy-btn:hover { background: var(--red); color: #fff; border-color: var(--red); }
-.snippet-body {
-  padding: 1.25rem 1.4rem;
-  min-height: 60px;
-}
-.snippet-loading {
-  display: flex;
-  align-items: center;
-  gap: 0.7rem;
-  color: var(--muted);
-  font-size: 0.82rem;
-  font-style: italic;
+  font-size: 0.85rem; font-style: italic;
   font-family: var(--body);
+  background: #fff;
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  padding: 1.5rem;
+  justify-content: center;
 }
-.snippet-loading-spinner {
-  width: 13px; height: 13px;
-  border: 2px solid rgba(233,13,65,0.2);
+.viz-loading-spinner {
+  width: 15px; height: 15px;
+  border: 2px solid rgba(29,111,242,0.2);
   border-top-color: var(--red);
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
 }
 
-/* OUTPUT BLOCK CONTAINER */
-.output-block {
-  margin-bottom: 1.25rem;
+/* AVATAR HERO CARD */
+.avatar-hero {
+  background: var(--ink);
+  border-radius: 12px;
+  padding: 1.75rem;
+  color: #fff;
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+  position: relative;
+  overflow: hidden;
+}
+.avatar-hero::after {
+  content: '';
+  position: absolute;
+  top: -40px; right: -40px;
+  width: 160px; height: 160px;
+  background: radial-gradient(circle, rgba(29,111,242,0.35), transparent 70%);
+  border-radius: 50%;
+}
+.avatar-face {
+  width: 92px; height: 92px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--red), var(--red-deep));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2.6rem;
+  flex-shrink: 0;
+  box-shadow: 0 8px 24px rgba(29,111,242,0.35);
+  z-index: 1;
+}
+.avatar-meta { z-index: 1; flex: 1; }
+.avatar-meta .a-name {
+  font-family: var(--display);
+  font-size: 1.55rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin-bottom: 0.3rem;
+}
+.avatar-meta .a-role {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--red);
+  margin-bottom: 0.75rem;
+}
+.avatar-meta .a-quote {
+  font-family: var(--display);
+  font-style: italic;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.85);
+  line-height: 1.4;
+  border-left: 3px solid var(--red);
+  padding-left: 0.85rem;
+}
+
+/* DESIRE/FEAR DUAL COLUMNS */
+.dual-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.85rem;
+  margin-top: 0.85rem;
+}
+.dual-col {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.1rem 1.2rem;
+}
+.dual-col.desire { border-top: 4px solid #22c55e; }
+.dual-col.fear { border-top: 4px solid var(--red); }
+.dual-col-head {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.75rem;
+  display: flex; align-items: center; gap: 0.4rem;
+  font-weight: 600;
+}
+.dual-col.desire .dual-col-head { color: #166534; }
+.dual-col.fear .dual-col-head { color: var(--red-deep); }
+.dual-list { list-style: none; }
+.dual-list li {
+  font-size: 0.85rem;
+  color: #333;
+  padding: 0.4rem 0 0.4rem 1.3rem;
+  position: relative;
+  line-height: 1.45;
+  border-bottom: 1px solid var(--page);
+}
+.dual-list li:last-child { border-bottom: none; }
+.dual-list li::before {
+  position: absolute; left: 0; top: 0.4rem;
+  font-size: 0.8rem;
+}
+.dual-col.desire .dual-list li::before { content: '▲'; color: #22c55e; }
+.dual-col.fear .dual-list li::before { content: '▼'; color: var(--red); }
+
+/* CONGREGATION MAP — visual nodes */
+.congregation-map {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.85rem;
+}
+.cong-node {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--red);
+  border-radius: 0 10px 10px 0;
+  padding: 1.1rem 1.2rem;
+  position: relative;
+  transition: transform 0.15s;
+}
+.cong-node:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.06); }
+.cong-node .c-icon {
+  width: 36px; height: 36px;
+  background: var(--pink);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.05rem;
+  margin-bottom: 0.65rem;
+}
+.cong-node .c-name {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 0.98rem;
+  line-height: 1.2;
+  margin-bottom: 0.3rem;
+}
+.cong-node .c-type {
+  font-family: var(--mono);
+  font-size: 0.55rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--red);
+  margin-bottom: 0.55rem;
+}
+.cong-node .c-entry {
+  font-size: 0.8rem;
+  color: #555;
+  line-height: 1.5;
+  border-top: 1px solid var(--page);
+  padding-top: 0.55rem;
+}
+.cong-node .c-entry strong { color: var(--ink); font-weight: 600; }
+
+/* HOOK CARDS */
+.hook-stack { display: flex; flex-direction: column; gap: 0.85rem; }
+.hook-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  padding: 1.3rem 1.4rem;
+  position: relative;
+  overflow: hidden;
+}
+.hook-card .h-badge {
+  position: absolute;
+  top: 0; right: 0;
+  font-family: var(--mono);
+  font-size: 0.55rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 600;
+  padding: 0.3rem 0.8rem;
+  border-radius: 0 10px 0 10px;
+  color: #fff;
+}
+.hook-card.fear .h-badge { background: var(--red); }
+.hook-card.curiosity .h-badge { background: #f0a500; }
+.hook-card.desire .h-badge { background: #22c55e; }
+.hook-card .h-num {
+  font-family: var(--display);
+  font-size: 2.2rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--page);
+  position: absolute;
+  bottom: 0.5rem; right: 1rem;
+  z-index: 0;
+}
+.hook-card .h-text {
+  font-family: var(--display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  position: relative; z-index: 1;
+  padding-right: 2rem;
+  margin-top: 0.5rem;
+}
+.hook-card .h-copy {
+  margin-top: 0.85rem;
+  background: var(--page);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #666;
+  padding: 0.3rem 0.75rem;
+  cursor: pointer;
+  position: relative; z-index: 1;
+  transition: all 0.15s;
+}
+.hook-card .h-copy:hover { background: var(--red); color: #fff; border-color: var(--red); }
+
+/* TRAFFIC FUNNEL DIAGRAM */
+.funnel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  margin: 0.5rem 0;
+}
+.funnel-tier {
+  width: 100%;
+  max-width: 560px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem 1.3rem;
+  position: relative;
+}
+.funnel-tier.t1 { width: 100%; border-top: 4px solid #f0a500; }
+.funnel-tier.t2 { width: 85%; border-top: 4px solid #0d9488; }
+.funnel-tier.t3 { width: 70%; border-top: 4px solid #22c55e; background: var(--green); }
+.funnel-arrow {
+  color: var(--muted);
+  font-size: 1.1rem;
+  padding: 0.35rem 0;
+}
+.funnel-tier .f-tag {
+  font-family: var(--mono);
+  font-size: 0.55rem;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  margin-bottom: 0.25rem;
+  font-weight: 600;
+}
+.funnel-tier.t1 .f-tag { color: #b07700; }
+.funnel-tier.t2 .f-tag { color: #0d9488; }
+.funnel-tier.t3 .f-tag { color: #166534; }
+.funnel-tier .f-title {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 1rem;
+  margin-bottom: 0.4rem;
+}
+.funnel-tier .f-detail {
+  font-size: 0.82rem;
+  color: #555;
+  line-height: 1.5;
+}
+.funnel-tier .f-detail strong { color: var(--ink); }
+
+/* SQUEEZE PAGE PREVIEW */
+.squeeze-preview {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  padding: 1.5rem;
+  text-align: center;
+  margin-top: 1rem;
+  background-image:
+    linear-gradient(rgba(0,0,0,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,0.02) 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+.squeeze-preview .sq-label {
+  font-family: var(--mono);
+  font-size: 0.55rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--red);
+  margin-bottom: 0.85rem;
+}
+.squeeze-preview .sq-headline {
+  font-family: var(--display);
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  margin-bottom: 0.5rem;
+  max-width: 460px; margin-left: auto; margin-right: auto;
+}
+.squeeze-preview .sq-sub {
+  font-size: 0.88rem;
+  color: #555;
+  margin-bottom: 1.1rem;
+  max-width: 420px; margin-left: auto; margin-right: auto;
+}
+.squeeze-preview .sq-field {
+  max-width: 340px; margin: 0 auto;
+  display: flex; gap: 0.5rem;
+}
+.squeeze-preview .sq-input {
+  flex: 1;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.6rem 0.85rem;
+  font-size: 0.82rem;
+  color: #aaa;
+  background: var(--page);
+  text-align: left;
+}
+.squeeze-preview .sq-cta {
+  background: var(--red);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.6rem 1.1rem;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
+
+/* LIST PROJECTION BARS */
+.projection {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  padding: 1.3rem 1.4rem;
+  margin-top: 1rem;
+}
+.projection-head {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--red);
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+.proj-row {
+  display: flex; align-items: center; gap: 0.85rem;
+  margin-bottom: 0.7rem;
+}
+.proj-label {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: #666;
+  width: 56px;
+  flex-shrink: 0;
+}
+.proj-bar-track {
+  flex: 1;
+  height: 26px;
+  background: var(--page);
+  border-radius: 5px;
+  overflow: hidden;
+  position: relative;
+}
+.proj-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--red), var(--red-deep));
+  border-radius: 5px;
+  width: 0;
+  transition: width 1s cubic-bezier(0.25,1,0.5,1);
+  display: flex; align-items: center; justify-content: flex-end;
+}
+.proj-bar-fill span {
+  color: #fff;
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding-right: 0.6rem;
+}
+
+/* WEEK 1 TIMELINE */
+.timeline {
+  position: relative;
+  padding-left: 2.2rem;
+}
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 9px; top: 8px; bottom: 8px;
+  width: 2px;
+  background: var(--border);
+}
+.tl-item {
+  position: relative;
+  margin-bottom: 1.1rem;
+}
+.tl-item::before {
+  content: '';
+  position: absolute;
+  left: -2.2rem; top: 4px;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: var(--red);
+  border: 4px solid var(--page);
+  box-shadow: 0 0 0 1px var(--red);
+}
+.tl-item .tl-day {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--red);
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+}
+.tl-item .tl-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 0.9rem 1.1rem;
+}
+.tl-item .tl-title {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin-bottom: 0.35rem;
+}
+.tl-item .tl-tasks {
+  list-style: none;
+}
+.tl-item .tl-tasks li {
+  font-size: 0.82rem;
+  color: #444;
+  padding: 0.25rem 0 0.25rem 1.3rem;
+  position: relative;
+  line-height: 1.4;
+}
+.tl-item .tl-tasks li::before {
+  content: '☐';
+  position: absolute; left: 0; top: 0.2rem;
+  color: var(--red);
+  font-size: 0.9rem;
 }
 
 /* ACTION GRID — tool component style */
@@ -675,7 +1100,6 @@ textarea::placeholder, input::placeholder {
   .pane { display: block !important; }
   .progress-pills { display: none; }
 }
-
 @media (max-width: 720px) {
   .wrap { padding: 2rem 1rem 4rem; }
   .topbar { padding: 0 1rem; }
@@ -690,21 +1114,20 @@ textarea::placeholder, input::placeholder {
 
 <!-- TOP BAR -->
 <div class="topbar">
-  <div class="topbar-brand">SOLVETECH <span>IMPACT</span></div>
+  <div class="topbar-brand">IMPACT AI <span>ACADEMY</span></div>
   <div class="topbar-right">
-    <div class="topbar-label">Built with Masud's AI Team</div>
+    <div class="topbar-label">Impact AI Academy</div>
     <button class="btn-pdf" onclick="window.print()">↓ Save PDF</button>
-  </div>
-</div>
+  </div></div>
 
 <div class="wrap">
 
   <!-- HERO -->
   <div class="hero">
-    <div class="eyebrow">A Solvetech Tool · Powered by Masud's AI Team</div>
+    <div class="eyebrow">An Impact AI Academy Tool</div>
     <h1>Find Your Dream<br>Customer In <em>4 Steps.</em></h1>
     <div class="hero-line"></div>
-    <div class="hero-sub">Answer 4 short sections. Masud's AI Team builds your complete dream customer profile, congregation map, hooks, traffic plan, and Week 1 action checklist — done for you in under 60 seconds.</div>
+    <div class="hero-sub">Answer 4 short sections. Impact AI Academy builds your complete dream customer profile, congregation map, hooks, traffic plan, and Week 1 action checklist, done for you in under 60 seconds.</div>
   </div>
 
   <!-- PROGRESS PILLS -->
@@ -716,7 +1139,6 @@ textarea::placeholder, input::placeholder {
       <div class="sec-label">Step 01 — Psychographic Avatar</div>
       <h2>Who Is Your <em>Dream Customer?</em></h2>
       <div class="sec-desc">Forget basic demographics. We want desires, fears, language, and internal world. Psychographic, not spreadsheet.</div>
-
       <div class="q-block">
         <div class="q-label">01 — Product / Service</div>
         <div class="q-text">What are you selling, and what transformation does it create?</div>
@@ -761,30 +1183,30 @@ textarea::placeholder, input::placeholder {
         <textarea id="q1_language" rows="2" placeholder="e.g. 'how to automate lead follow-up', 'best CRM for real estate', 'real estate automation tools'..."></textarea>
         <button class="ai-assist-btn" onclick="getAIAssist('step1')" id="btn_step1">
           <div class="spinner"></div>
-          <span class="btn-label">Masud, Please Help Me Fill This</span>
+          <span class="btn-label">Masud, Help Me Fill This With Your AI Team</span>
         </button>
         <div class="ai-response" id="ai_step1">
-          <div class="ai-response-label">✦ Masud's AI Team Suggestions</div>
-          <div class="ai-response-text ai-prose"></div>
+          <div class="ai-response-label">✦ Impact AI Academy Suggestions</div>
+          <div class="ai-response-body"></div>
         </div>
       </div>
     </div>
     <div class="nav-row">
-      <button class="btn-next" onclick="goToStep(2)">Next: Where Are They →</button>
+      <button class="btn-next" onclick="goToStep(2)">Next: Where They Gather →</button>
     </div>
   </div>
 
   <!-- STEP 2 -->
   <div class="pane" id="step2">
     <div class="section-card">
-      <div class="sec-label">Step 02 — Congregation Mapping</div>
-      <h2>Where Do They <em>Congregate?</em></h2>
-      <div class="sec-desc">Your dream customers are already gathered somewhere. Select all that apply, then add specifics.</div>
+      <div class="sec-label">Step 02 — Where They Gather</div>
+      <h2>Where Do Your Dream Customers <em>Hang Out?</em></h2>
+      <div class="sec-desc">Your dream customers are already gathered somewhere online and offline. Pick the places they spend time, then name the exact ones.</div>
 
       <div class="cat-banner">
         <div class="cat-banner-dot"></div>
         <div class="cat-banner-label">Step 1 of 2</div>
-        <div class="cat-banner-title">Select Congregation Types</div>
+        <div class="cat-banner-title">Pick The Types Of Places</div>
       </div>
 
       <div class="congregation-grid" id="congregationGrid">
@@ -805,20 +1227,20 @@ textarea::placeholder, input::placeholder {
       <div class="cat-banner">
         <div class="cat-banner-dot"></div>
         <div class="cat-banner-label">Step 2 of 2</div>
-        <div class="cat-banner-title">Name Actual Places</div>
+        <div class="cat-banner-title">Name The Actual Spots</div>
       </div>
 
       <div class="q-block">
         <div class="q-label">Specifics</div>
-        <div class="q-text">List actual names: real Facebook groups, YouTube channels, podcasts, newsletters they subscribe to.</div>
+        <div class="q-text">List the actual names: real Facebook groups, YouTube channels, podcasts, and newsletters they follow.</div>
         <textarea id="q2_specific" rows="4" placeholder="e.g. BiggerPockets Facebook Group (300K members), Real Estate Rockstars Podcast, Agent Mastermind FB Group, Tom Ferry YouTube..."></textarea>
         <button class="ai-assist-btn" onclick="getAIAssist('step2')" id="btn_step2">
           <div class="spinner"></div>
-          <span class="btn-label">Masud, Find Congregations For Me</span>
+          <span class="btn-label">Masud, Help Me Fill This With Your AI Team</span>
         </button>
         <div class="ai-response" id="ai_step2">
-          <div class="ai-response-label">✦ Masud's AI Team Suggestions</div>
-          <div class="ai-response-text ai-prose"></div>
+          <div class="ai-response-label">✦ Impact AI Academy Suggestions</div>
+          <div class="ai-response-body"></div>
         </div>
       </div>
     </div>
@@ -867,11 +1289,11 @@ textarea::placeholder, input::placeholder {
         <textarea id="q3_ad" rows="3" placeholder="e.g. '73% of real estate deals are lost in the first 5 minutes of lead response. Here's how the top agents fix it in 1 hour with AI...'"></textarea>
         <button class="ai-assist-btn" onclick="getAIAssist('step3')" id="btn_step3">
           <div class="spinner"></div>
-          <span class="btn-label">Masud, Generate 3 Hooks For Me</span>
+          <span class="btn-label">Masud, Help Me Fill This With Your AI Team</span>
         </button>
         <div class="ai-response" id="ai_step3">
-          <div class="ai-response-label">✦ Masud's AI Team Suggestions</div>
-          <div class="ai-response-text ai-prose"></div>
+          <div class="ai-response-label">✦ Impact AI Academy Suggestions</div>
+          <div class="ai-response-body"></div>
         </div>
       </div>
     </div>
@@ -886,7 +1308,7 @@ textarea::placeholder, input::placeholder {
     <div class="section-card">
       <div class="sec-label">Step 04 — Traffic Strategy</div>
       <h2>How Will You <em>Own The Traffic?</em></h2>
-      <div class="sec-desc">3 traffic types. One goal — convert all of it into traffic you OWN (your email list).</div>
+      <div class="sec-desc">3 traffic types. One goal. Convert all of it into traffic you OWN (your email list).</div>
 
       <div class="q-block">
         <div class="q-label">Traffic Mix</div>
@@ -895,7 +1317,7 @@ textarea::placeholder, input::placeholder {
           <div class="traffic-option" data-traffic="controlled" onclick="toggleTraffic(this)">
             <div class="traffic-icon">🎯</div>
             <div>
-              <div class="t-tag">Type 01 — Paid</div>
+              <div class="t-tag">Type 01 · Paid</div>
               <div class="t-name">Traffic You CONTROL</div>
               <div class="t-desc">Facebook Ads, Google Ads, solo ads, affiliates. You pay, you direct it anywhere.</div>
             </div>
@@ -903,7 +1325,7 @@ textarea::placeholder, input::placeholder {
           <div class="traffic-option" data-traffic="uncontrolled" onclick="toggleTraffic(this)">
             <div class="traffic-icon">🌊</div>
             <div>
-              <div class="t-tag">Type 02 — Earned</div>
+              <div class="t-tag">Type 02 · Earned</div>
               <div class="t-name">Traffic You DON'T CONTROL</div>
               <div class="t-desc">SEO, social posts, YouTube, guest blogs, PR, word of mouth.</div>
             </div>
@@ -911,7 +1333,7 @@ textarea::placeholder, input::placeholder {
           <div class="traffic-option" data-traffic="owned" onclick="toggleTraffic(this)">
             <div class="traffic-icon">👑</div>
             <div>
-              <div class="t-tag">Type 03 — The Goal</div>
+              <div class="t-tag">Type 03 · The Goal</div>
               <div class="t-name">Traffic You OWN</div>
               <div class="t-desc">Your email list, SMS list, community. Message them anytime. Zero marginal cost.</div>
             </div>
@@ -931,11 +1353,11 @@ textarea::placeholder, input::placeholder {
         <input type="text" id="q4_list" placeholder="e.g. Currently: 200 subscribers. 90-day target: 1,000.">
         <button class="ai-assist-btn" onclick="getAIAssist('step4')" id="btn_step4">
           <div class="spinner"></div>
-          <span class="btn-label">Masud, Build My Growth Plan</span>
+          <span class="btn-label">Masud, Help Me Fill This With Your AI Team</span>
         </button>
         <div class="ai-response" id="ai_step4">
-          <div class="ai-response-label">✦ Masud's AI Team Suggestions</div>
-          <div class="ai-response-text ai-prose"></div>
+          <div class="ai-response-label">✦ Impact AI Academy Suggestions</div>
+          <div class="ai-response-body"></div>
         </div>
       </div>
     </div>
@@ -950,111 +1372,48 @@ textarea::placeholder, input::placeholder {
     <div class="section-card">
       <div class="sec-label">Output — Your Blueprint</div>
       <h2>Your Dream Customer <em>Blueprint.</em></h2>
-      <div class="sec-desc">Built by Masud's AI Team from your inputs. Each block has a Copy button — paste directly into your ads, content briefs, and funnels.</div>
+      <div class="sec-desc">Built from your inputs. Each block is a visual you can save, screenshot, or drop into a client deck.</div>
 
       <div class="cat-banner">
         <div class="cat-banner-dot"></div>
         <div class="cat-banner-label">01</div>
         <div class="cat-banner-title">Avatar Profile</div>
       </div>
-      <div class="output-block">
-        <div class="snippet">
-          <div class="snippet-head">
-            <div class="snippet-label">Complete Avatar — Who They Are</div>
-            <button class="copy-btn" onclick="copyOutput('out_avatar')">⎘ Copy</button>
-          </div>
-          <div class="snippet-body" id="out_avatar"><div class="snippet-loading"><div class="snippet-loading-spinner"></div>Building your avatar...</div></div>
-        </div>
-      </div>
+      <div class="output-block" id="out_avatar"><div class="viz-loading"><div class="viz-loading-spinner"></div>Building your avatar...</div></div>
 
       <div class="cat-banner">
         <div class="cat-banner-dot"></div>
         <div class="cat-banner-label">02</div>
-        <div class="cat-banner-title">Congregation Map</div>
+        <div class="cat-banner-title">Where They Gather</div>
       </div>
-      <div class="output-block">
-        <div class="snippet">
-          <div class="snippet-head">
-            <div class="snippet-label">Where They Gather — Specific Places</div>
-            <button class="copy-btn" onclick="copyOutput('out_congregation')">⎘ Copy</button>
-          </div>
-          <div class="snippet-body" id="out_congregation"><div class="snippet-loading"><div class="snippet-loading-spinner"></div>Mapping congregations...</div></div>
-        </div>
-      </div>
+      <div class="output-block" id="out_congregation"><div class="viz-loading"><div class="viz-loading-spinner"></div>Mapping where they gather...</div></div>
 
       <div class="cat-banner">
         <div class="cat-banner-dot"></div>
         <div class="cat-banner-label">03</div>
         <div class="cat-banner-title">Top 3 Interrupt Hooks</div>
       </div>
-      <div class="output-block">
-        <div class="snippet">
-          <div class="snippet-head">
-            <div class="snippet-label">Ready-to-Deploy Ad Hooks</div>
-            <button class="copy-btn" onclick="copyOutput('out_hooks')">⎘ Copy</button>
-          </div>
-          <div class="snippet-body" id="out_hooks"><div class="snippet-loading"><div class="snippet-loading-spinner"></div>Crafting hooks...</div></div>
-        </div>
-      </div>
+      <div class="output-block" id="out_hooks"><div class="viz-loading"><div class="viz-loading-spinner"></div>Crafting hooks...</div></div>
 
       <div class="cat-banner">
         <div class="cat-banner-dot"></div>
         <div class="cat-banner-label">04</div>
         <div class="cat-banner-title">Traffic + List Building Plan</div>
       </div>
-      <div class="output-block">
-        <div class="snippet">
-          <div class="snippet-head">
-            <div class="snippet-label">90-Day Traffic Strategy</div>
-            <button class="copy-btn" onclick="copyOutput('out_traffic')">⎘ Copy</button>
-          </div>
-          <div class="snippet-body" id="out_traffic"><div class="snippet-loading"><div class="snippet-loading-spinner"></div>Building traffic plan...</div></div>
-        </div>
-      </div>
+      <div class="output-block" id="out_traffic"><div class="viz-loading"><div class="viz-loading-spinner"></div>Building traffic plan...</div></div>
 
       <div class="cat-banner">
         <div class="cat-banner-dot"></div>
         <div class="cat-banner-label">05</div>
         <div class="cat-banner-title">Week 1 Action Plan</div>
       </div>
-      <div class="output-block">
-        <div class="snippet">
-          <div class="snippet-head">
-            <div class="snippet-label">Day-by-Day Execution</div>
-            <button class="copy-btn" onclick="copyOutput('out_action')">⎘ Copy</button>
-          </div>
-          <div class="snippet-body" id="out_action"><div class="snippet-loading"><div class="snippet-loading-spinner"></div>Generating action plan...</div></div>
-        </div>
-      </div>
+      <div class="output-block" id="out_action"><div class="viz-loading"><div class="viz-loading-spinner"></div>Generating action plan...</div></div>
 
       <div class="callout green">
         <div class="callout-icon">✅</div>
         <div>
           <div class="callout-head">Your Blueprint Is Ready</div>
-          <div class="callout-text">Every block above is copy-ready. Paste directly into your strategy doc, ad manager, content brief, or funnel builder. This is your operating system — update it as your business evolves.</div>
-        </div>
-      </div>
-
-      <div class="action-grid">
-        <div class="action-card" onclick="window.print()">
-          <div class="action-card-icon">📄</div>
-          <div class="action-card-title">Save as PDF</div>
-          <div class="action-card-desc">Export your blueprint as a polished PDF for your team or client deck.</div>
-        </div>
-        <div class="action-card">
-          <div class="action-card-icon">🎯</div>
-          <div class="action-card-title">Next: Value Ladder</div>
-          <div class="action-card-desc">You have the customer. Now design the offers that walk them up your ladder.</div>
-        </div>
-        <div class="action-card">
-          <div class="action-card-icon">⚡</div>
-          <div class="action-card-title">Build Squeeze Page</div>
-          <div class="action-card-desc">Use Hook 1 as the headline. One field. One button. Live in 2 hours.</div>
-        </div>
-        <div class="action-card" onclick="resetAll()">
-          <div class="action-card-icon">🔄</div>
-          <div class="action-card-title">Start Over</div>
-          <div class="action-card-desc">Build a profile for a different product or client.</div>
+          <div class="callout-text">Every block above is a visual you can screenshot or export. This is your operating system. Update it as your business grows.</div>
         </div>
       </div>
     </div>
@@ -1065,8 +1424,8 @@ textarea::placeholder, input::placeholder {
 
     <!-- CLOSER -->
     <div class="closer">
-      <div class="closer-quote">"The riches are in the niches.<br>But the sales are in the <em>congregations.</em>"</div>
-      <div class="closer-sub">Solvetech Solutions · Dream Customer Framework</div>
+      <div class="closer-quote">"The riches are in the niches.<br>But the sales are where they <em>gather.</em>"</div>
+      <div class="closer-sub">Impact AI Academy · Dream Customer Framework</div>
     </div>
   </div>
 
@@ -1075,7 +1434,7 @@ textarea::placeholder, input::placeholder {
 <script>
 const STEPS = [
   { label: 'Dream Customer', num: '01' },
-  { label: 'Congregations', num: '02' },
+      { label: 'Where They Gather', num: '02' },
   { label: 'The Interrupt', num: '03' },
   { label: 'Traffic Plan', num: '04' },
 ];
@@ -1084,95 +1443,6 @@ let currentStep = 1;
 let completedSteps = new Set();
 let selectedCongregations = [];
 let selectedTraffic = [];
-
-function escapeHtml(text) {
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
-
-function formatInline(text) {
-  return text
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*(.+?)\*/g, '<em>$1</em>')
-    .replace(/`(.+?)`/g, '<code>$1</code>');
-}
-
-function formatParagraph(line) {
-  if (line.includes('**') || line.includes('`')) {
-    return `<p>${formatInline(line)}</p>`;
-  }
-
-  const labelMatch = line.match(/^([A-Za-z#][^:]{0,58}):\s*(.*)$/);
-  if (labelMatch) {
-    const label = labelMatch[1].trim();
-    const rest = labelMatch[2].trim();
-    if (rest) {
-      return `<p><strong>${label}:</strong> ${formatInline(rest)}</p>`;
-    }
-    return `<p><strong>${label}</strong></p>`;
-  }
-
-  return `<p>${formatInline(line)}</p>`;
-}
-
-function formatAIResponse(text) {
-  if (!text) return '';
-
-  const lines = escapeHtml(text).split('\n');
-  let html = '';
-  let inUl = false;
-  let inOl = false;
-
-  const closeLists = () => {
-    if (inUl) { html += '</ul>'; inUl = false; }
-    if (inOl) { html += '</ol>'; inOl = false; }
-  };
-
-  for (const rawLine of lines) {
-    const line = rawLine.trim();
-
-    if (!line) {
-      closeLists();
-      continue;
-    }
-
-    const heading = line.match(/^(#{1,3})\s+(.+)$/);
-    if (heading) {
-      closeLists();
-      const tag = heading[1].length === 1 ? 'h2' : heading[1].length === 2 ? 'h3' : 'h4';
-      html += `<${tag}>${formatInline(heading[2])}</${tag}>`;
-      continue;
-    }
-
-    const bullet = line.match(/^[-*•]\s+(.+)$/);
-    if (bullet) {
-      if (!inUl) { closeLists(); html += '<ul>'; inUl = true; }
-      html += `<li>${formatInline(bullet[1])}</li>`;
-      continue;
-    }
-
-    const numbered = line.match(/^\d+\.\s+(.+)$/);
-    if (numbered) {
-      if (!inOl) { closeLists(); html += '<ol>'; inOl = true; }
-      html += `<li>${formatInline(numbered[1])}</li>`;
-      continue;
-    }
-
-    closeLists();
-    html += formatParagraph(line);
-  }
-
-  closeLists();
-  return html;
-}
-
-function renderAIContent(el, text) {
-  el.classList.add('ai-prose');
-  el.innerHTML = formatAIResponse(text);
-}
 
 function buildProgressPills() {
   const bar = document.getElementById('progressPills');
@@ -1230,6 +1500,34 @@ function getTrafficLabel(type) {
   return labels[type] || type;
 }
 
+async function callClaude(userPrompt, maxTokens = 1000) {
+  const resp = await fetch('/api/claude', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-6',
+      max_tokens: maxTokens,
+      messages: [{ role: 'user', content: userPrompt }]
+    })
+  });
+
+  let data;
+  try {
+    data = await resp.json();
+  } catch {
+    throw new Error('Could not reach the AI server. Is vercel dev running?');
+  }
+
+  if (!resp.ok || data.error) {
+    const msg = typeof data.error === 'string'
+      ? data.error
+      : data.error?.message || `API error (${resp.status})`;
+    throw new Error(msg);
+  }
+
+  return data.content?.map(b => b.text || '').join('') || '';
+}
+
 function appendHint(id, text) {
   const el = document.getElementById(id);
   if (el.value && !el.value.endsWith(', ')) el.value += ', ';
@@ -1239,7 +1537,7 @@ function appendHint(id, text) {
 async function getAIAssist(step) {
   const btn = document.getElementById('btn_' + step);
   const responseEl = document.getElementById('ai_' + step);
-  const responseText = responseEl.querySelector('.ai-response-text');
+  const body = responseEl.querySelector('.ai-response-body');
   btn.classList.add('loading');
   btn.disabled = true;
 
@@ -1249,67 +1547,127 @@ async function getAIAssist(step) {
   const pains = document.getElementById('q1_pains').value.trim();
   const language = document.getElementById('q1_language').value.trim();
 
+  // Each config defines the prompt (asking for strict JSON) and which input each group fills.
   let prompt = '';
   if (step === 'step1') {
-    prompt = `I'm building a dream customer profile for: "${product || 'not specified'}".
-Demographics: ${demo || 'unknown'}.
-Desires so far: ${desires || 'unknown'}.
-Pains so far: ${pains || 'unknown'}.
+    prompt = `I'm building a dream customer profile for: "${product || 'a service'}". Demographics: ${demo || 'unknown'}. Desires so far: ${desires || 'none'}. Pains so far: ${pains || 'none'}.
 
-Help me fill in gaps:
-1. Additional desires and pains this customer might have
-2. Exact phrases/words they use when searching or talking about their problem
-3. What their internal monologue sounds like
-Concise, specific, practical. No generic advice.`;
+Return ONLY valid JSON, no markdown fences, no preamble. Schema:
+{"desires":["5 short specific desires, each max 8 words"],"pains":["5 short specific pains, each max 8 words"],"language":["6 short exact search phrases or words they use, each max 7 words"]}`;
   } else if (step === 'step2') {
     const specific = document.getElementById('q2_specific').value.trim();
-    prompt = `Dream customer: ${product || 'unknown'} for ${demo || 'unknown audience'}.
-Desires: ${desires || 'unknown'}. Pains: ${pains || 'unknown'}.
-Selected congregation types: ${selectedCongregations.join(', ') || 'none yet'}.
-Specific places mentioned: ${specific || 'none'}.
+    prompt = `Dream customer: ${product || 'unknown'} for ${demo || 'unknown audience'}. Desires: ${desires || 'unknown'}. Pains: ${pains || 'unknown'}. Selected congregation types: ${selectedCongregations.join(', ') || 'none'}. Already listed: ${specific || 'none'}.
 
-List 8-10 SPECIFIC congregation spots where this customer hangs out. Include real Facebook group names (with member counts if known), YouTube channels, podcasts, newsletters, subreddits. Ultra-specific. No generic answers.`;
+Return ONLY valid JSON, no markdown fences, no preamble. Schema:
+{"specific":["8 ultra-specific real places they gather: named Facebook groups, podcasts, YouTube channels, subreddits, newsletters. Each max 9 words"]}`;
   } else if (step === 'step3') {
     const hook = document.getElementById('q3_hook').value.trim();
-    prompt = `Dream customer: ${product || 'unknown'} for ${demo || 'unknown'}.
-#1 pain: ${pains || 'unknown'}. #1 desire: ${desires || 'unknown'}.
-Language: ${language || 'unknown'}.
-Partial hook: ${hook || 'none yet'}.
+    prompt = `Dream customer: ${product || 'unknown'} for ${demo || 'unknown'}. Top pain: ${pains || 'unknown'}. Top desire: ${desires || 'unknown'}. Language: ${language || 'unknown'}. Partial hook: ${hook || 'none'}.
 
-Generate 3 POWERFUL Enquirer-style interrupt hooks. Each should be 1-2 sentences, lead with curiosity/fear/shocking stat, use their exact language, and make them want to click immediately. Label them Hook 1, Hook 2, Hook 3.`;
+Return ONLY valid JSON, no markdown fences, no preamble. Schema:
+{"hooks":["3 powerful Enquirer-style interrupt hooks, 1 sentence each, uses their language"],"bait":["3 lead magnet ideas they would say yes to, each max 9 words"]}`;
   } else if (step === 'step4') {
     const squeeze = document.getElementById('q4_squeeze').value.trim();
     const listSize = document.getElementById('q4_list').value.trim();
-    prompt = `Dream customer: ${product || 'unknown'} for ${demo || 'unknown'}.
-Congregations: ${selectedCongregations.join(', ') || 'unknown'}.
-Traffic mix selected: ${selectedTraffic.map(getTrafficLabel).join(', ') || 'none yet'}.
-Squeeze page: ${squeeze || 'not built yet'}.
-Current list: ${listSize || 'unknown'}.
+    prompt = `Dream customer: ${product || 'unknown'} for ${demo || 'unknown'}. Congregations: ${selectedCongregations.join(', ') || 'unknown'}. Traffic mix: ${selectedTraffic.map(getTrafficLabel).join(', ') || 'none selected'}. Squeeze page: ${squeeze || 'none'}. Current list: ${listSize || 'unknown'}.
 
-Give a concrete 30-day traffic growth plan to build my email list. Include: top 3 traffic sources, daily/weekly actions for each, squeeze page optimization tip, realistic list growth projection. Specific and actionable. No fluff.`;
+Return ONLY valid JSON, no markdown fences, no preamble. Schema:
+{"squeeze":["3 squeeze page concepts (one line each), max 14 words"],"list":["3 realistic 90-day list targets phrased like 'Currently: X. 90-day target: Y'"]}`;
   }
 
+  // Maps each JSON key to a target input + readable group label.
+  const groupMap = {
+    step1: [
+      { key: 'desires', target: 'q1_desires', label: 'Desires' },
+      { key: 'pains', target: 'q1_pains', label: 'Pains & Frustrations' },
+      { key: 'language', target: 'q1_language', label: 'Their Language' }
+    ],
+    step2: [
+      { key: 'specific', target: 'q2_specific', label: 'Places They Gather' }
+    ],
+    step3: [
+      { key: 'hooks', target: 'q3_hook', label: 'Interrupt Hooks' },
+      { key: 'bait', target: 'q3_bait', label: 'Lead Magnet Ideas' }
+    ],
+    step4: [
+      { key: 'squeeze', target: 'q4_squeeze', label: 'Squeeze Page Concepts' },
+      { key: 'list', target: 'q4_list', label: 'List Targets' }
+    ]
+  };
+
   try {
-    const resp = await fetch('/api/claude', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 1000,
-        messages: [{ role: 'user', content: prompt }]
-      })
-    });
-    const data = await resp.json();
-    const text = data.content?.map(b => b.text || '').join('') || 'No response.';
-    renderAIContent(responseText, text);
+    let text = await callClaude(prompt, 1000);
+    let obj;
+    try {
+      obj = parseJSON(text);
+    } catch (parseErr) {
+      text = await callClaude(
+        prompt + '\n\nIMPORTANT: Output ONLY the raw JSON object. Start with { and end with }. No markdown, no explanation.',
+        1000
+      );
+      obj = parseJSON(text);
+    }
+    body.innerHTML = renderSuggestions(obj, groupMap[step]);
     responseEl.classList.add('visible');
   } catch (e) {
-    responseText.classList.add('ai-prose');
-    responseText.innerHTML = '<p>Could not reach Masud right now. Check your connection and try again.</p>';
+    const portHint = location.hostname === 'localhost' && location.port === '3000'
+      ? ' Your dev server may be on port 3001 — check the terminal URL.'
+      : '';
+    body.innerHTML = `<div class="suggest-empty">Could not load suggestions right now. ${escapeHtml(e.message || 'Please try again.')}${portHint}</div>`;
     responseEl.classList.add('visible');
   }
   btn.classList.remove('loading');
   btn.disabled = false;
+}
+
+function renderSuggestions(obj, groups) {
+  let html = '';
+  groups.forEach((g, gi) => {
+    const items = Array.isArray(obj[g.key]) ? obj[g.key].filter(Boolean) : [];
+    if (!items.length) return;
+    // stash items on a global registry so handlers don't depend on encoding inside attributes
+    const groupId = 'sg_' + Math.random().toString(36).slice(2, 9);
+    SUGGEST_STORE[groupId] = { items: items, target: g.target };
+    const chips = items.map((item, idx) =>
+      `<button class="suggest-chip" onclick="addSuggestion('${groupId}', ${idx}, this)"><span class="chip-plus"></span>${escapeHtml(item)}</button>`
+    ).join('');
+    html += `
+      <div class="suggest-group">
+        <div class="suggest-group-head">${escapeHtml(g.label)} · tap to add</div>
+        <div class="suggest-chips">${chips}</div>
+        <button class="suggest-addall" onclick="addAllSuggestions('${groupId}', this)">+ Add all to box</button>
+      </div>`;
+  });
+  return html || '<div class="suggest-empty">No suggestions returned. Try adding a bit more detail above first.</div>';
+}
+
+const SUGGEST_STORE = {};
+
+function fillBox(targetId, text) {
+  const el = document.getElementById(targetId);
+  if (!el) return;
+  const cur = el.value.trim();
+  if (!cur) {
+    el.value = text;
+  } else if (!cur.includes(text)) {
+    const sep = /[.,]$/.test(cur) ? ' ' : ', ';
+    el.value = cur + sep + text;
+  }
+}
+
+function addSuggestion(groupId, idx, btn) {
+  const group = SUGGEST_STORE[groupId];
+  if (!group) return;
+  fillBox(group.target, group.items[idx]);
+  btn.classList.add('added');
+}
+
+function addAllSuggestions(groupId, btn) {
+  const group = SUGGEST_STORE[groupId];
+  if (!group) return;
+  group.items.forEach(item => fillBox(group.target, item));
+  const wrap = btn.closest('.suggest-group');
+  wrap.querySelectorAll('.suggest-chip').forEach(c => c.classList.add('added'));
 }
 
 async function generateOutput() {
@@ -1350,57 +1708,233 @@ Traffic mix: ${selectedTraffic.map(getTrafficLabel).join(', ') || 'none selected
   const sections = [
     {
       id: 'out_avatar',
-      prompt: `Based on this dream customer research:\n\n${context}\n\nWrite a full Dream Customer Avatar. Include: Name, age, role; Core desires; Core fears; Daily frustrations; How they talk about their problem; What a win looks like. Format clearly. Specific, not generic.`
+      render: renderAvatar,
+      prompt: `Based on this dream customer research:\n\n${context}\n\nReturn ONLY valid JSON, no markdown fences, no preamble. Schema:
+{"name":"first name + descriptor e.g. 'Marcus, the Scaling Agent'","role":"one-line role/title","emoji":"single relevant emoji","quote":"a punchy first-person quote in their voice about their biggest frustration, max 18 words","desires":["4 specific desires, each max 9 words"],"fears":["4 specific fears/frustrations, each max 9 words"]}`
     },
     {
       id: 'out_congregation',
-      prompt: `Based on this:\n\n${context}\n\nWrite a Congregation Map. List: 5 specific online places they gather (with names), 2 offline congregations, what they talk about in each, best entry point for each. Numbered list format.`
+      render: renderCongregation,
+      prompt: `Based on this:\n\n${context}\n\nReturn ONLY valid JSON, no markdown fences, no preamble. Schema:
+{"places":[{"name":"specific real place name e.g. 'BiggerPockets FB Group'","type":"channel type e.g. Facebook Group / Podcast / Subreddit","emoji":"single emoji for the channel","entry":"best entry tactic in max 14 words"}]}
+Give 6 ultra-specific places. Use REAL named groups, podcasts, channels, subreddits where possible.`
     },
     {
       id: 'out_hooks',
-      prompt: `Based on this:\n\n${context}\n\nWrite the Top 3 Enquirer Interrupt Hooks. Each 2-3 sentences. Start with pattern interrupt (stat, question, or bold claim). Use their exact language. Label: Hook 1 (Fear-based), Hook 2 (Curiosity-based), Hook 3 (Desire-based).`
+      render: renderHooks,
+      prompt: `Based on this:\n\n${context}\n\nReturn ONLY valid JSON, no markdown fences, no preamble. Schema:
+{"hooks":[{"type":"fear","text":"a fear-based Enquirer-style hook, 1-2 sentences, uses their language"},{"type":"curiosity","text":"a curiosity-based hook"},{"type":"desire","text":"a desire-based hook"}]}`
     },
     {
       id: 'out_traffic',
-      prompt: `Based on this:\n\n${context}\n\nWrite Traffic + List Building Strategy: 1) Controlled traffic — top 2 paid channels + targeting; 2) Uncontrolled — top 2 organic channels + what to publish; 3) Squeeze page — headline, subheadline, CTA; 4) 90-day list projection. Concrete. No theory.`
+      render: renderTraffic,
+      prompt: `Based on this:\n\n${context}\n\nReturn ONLY valid JSON, no markdown fences, no preamble. Schema:
+{"tiers":[{"tier":"controlled","title":"e.g. Paid: Meta Ads","detail":"top channel + targeting, max 18 words"},{"tier":"earned","title":"e.g. Organic: YouTube","detail":"what to publish, max 18 words"},{"tier":"owned","title":"e.g. Email List","detail":"how traffic converts to owned, max 18 words"}],"squeeze":{"headline":"squeeze page headline","sub":"subheadline, max 16 words","cta":"button text, max 4 words"},"projection":[{"label":"Day 0","value":<starting number>},{"label":"Day 30","value":<number>},{"label":"Day 60","value":<number>},{"label":"Day 90","value":<number>}]}
+Make projection numbers realistic based on their stated list size.`
     },
     {
       id: 'out_action',
-      prompt: `Based on this:\n\n${context}\n\nWrite a Week 1 Action Plan. Day 1-2, Day 3-4, Day 5-7. Each task specific, doable in under 3 hours, moves toward first 100 subscribers. Tight.`
+      render: renderAction,
+      prompt: `Based on this:\n\n${context}\n\nReturn ONLY valid JSON, no markdown fences, no preamble. Schema:
+{"days":[{"day":"Day 1-2","title":"phase title","tasks":["2-3 specific tasks each under 3 hours"]},{"day":"Day 3-4","title":"phase title","tasks":["2-3 tasks"]},{"day":"Day 5-7","title":"phase title","tasks":["2-3 tasks"]}]}`
     }
   ];
 
   for (const section of sections) {
-    generateSection(section.id, section.prompt);
+    generateVizSection(section);
     await new Promise(r => setTimeout(r, 400));
   }
 }
 
-async function generateSection(id, prompt) {
-  const el = document.getElementById(id);
+function escapeHtml(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function parseJSON(text) {
+  let t = (text || '').trim();
+  // strip code fences if present
+  t = t.replace(/^```(?:json)?/i, '').replace(/```\s*$/, '').trim();
+  // extract the outermost {...} block
+  const start = t.indexOf('{');
+  const end = t.lastIndexOf('}');
+  if (start !== -1 && end !== -1 && end > start) t = t.slice(start, end + 1);
+
+  // first attempt: straight parse
+  try { return JSON.parse(t); } catch (e) {}
+
+  // second attempt: clean common issues (trailing commas, smart quotes)
+  let cleaned = t
+    .replace(/[\u201C\u201D]/g, '"')   // smart double quotes
+    .replace(/[\u2018\u2019]/g, "'")   // smart single quotes
+    .replace(/,\s*([}\]])/g, '$1');    // trailing commas before } or ]
+  try { return JSON.parse(cleaned); } catch (e) {}
+
+  // third attempt: if it looks truncated (unbalanced braces/brackets), close them
+  let repaired = cleaned;
+  // remove a dangling partial last property after the final comma
+  repaired = repaired.replace(/,\s*"[^"]*"\s*:\s*[^,}\]]*$/, '');
+  const openCurly = (repaired.match(/{/g) || []).length;
+  const closeCurly = (repaired.match(/}/g) || []).length;
+  const openSq = (repaired.match(/\[/g) || []).length;
+  const closeSq = (repaired.match(/\]/g) || []).length;
+  repaired += ']'.repeat(Math.max(0, openSq - closeSq));
+  repaired += '}'.repeat(Math.max(0, openCurly - closeCurly));
+  return JSON.parse(repaired);
+}
+
+async function generateVizSection(section) {
+  const el = document.getElementById(section.id);
   try {
-    const resp = await fetch('/api/claude', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 1000,
-        messages: [{ role: 'user', content: prompt }]
-      })
+    let text = await callClaude(section.prompt, 2000);
+    let obj;
+    try {
+      obj = parseJSON(text);
+    } catch (parseErr) {
+      text = await callClaude(
+        section.prompt + '\n\nIMPORTANT: Output ONLY the raw JSON object. Start your response with { and end with }. No explanation, no markdown.',
+        2000
+      );
+      obj = parseJSON(text);
+    }
+    el.innerHTML = section.render(obj);
+    // animate projection bars if present
+    requestAnimationFrame(() => {
+      el.querySelectorAll('.proj-bar-fill').forEach(bar => {
+        bar.style.width = bar.dataset.width + '%';
+      });
     });
-    const data = await resp.json();
-    const text = data.content?.map(b => b.text || '').join('') || 'Could not generate.';
-    renderAIContent(el, text);
   } catch (e) {
-    el.classList.add('ai-prose');
-    el.innerHTML = '<p>Error generating this section. Try again.</p>';
+    el.innerHTML = `<div class="viz-loading" style="border-color:var(--red);color:var(--red);">Could not render this section. Tap "Edit My Inputs" and try again.</div>`;
   }
 }
 
-function copyOutput(id) {
-  const text = document.getElementById(id).innerText;
+/* ===== RENDERERS ===== */
+function renderAvatar(d) {
+  const desires = (d.desires || []).map(x => `<li>${escapeHtml(x)}</li>`).join('');
+  const fears = (d.fears || []).map(x => `<li>${escapeHtml(x)}</li>`).join('');
+  return `
+    <div class="avatar-hero">
+      <div class="avatar-face">${escapeHtml(d.emoji || '🎯')}</div>
+      <div class="avatar-meta">
+        <div class="a-name">${escapeHtml(d.name || 'Your Dream Customer')}</div>
+        <div class="a-role">${escapeHtml(d.role || '')}</div>
+        <div class="a-quote">"${escapeHtml(d.quote || '')}"</div>
+      </div>
+    </div>
+    <div class="dual-grid">
+      <div class="dual-col desire">
+        <div class="dual-col-head">▲ What They Desire</div>
+        <ul class="dual-list">${desires}</ul>
+      </div>
+      <div class="dual-col fear">
+        <div class="dual-col-head">▼ What They Fear</div>
+        <ul class="dual-list">${fears}</ul>
+      </div>
+    </div>`;
+}
+
+function renderCongregation(d) {
+  const nodes = (d.places || []).map(p => `
+    <div class="cong-node">
+      <div class="c-icon">${escapeHtml(p.emoji || '📍')}</div>
+      <div class="c-name">${escapeHtml(p.name || '')}</div>
+      <div class="c-type">${escapeHtml(p.type || '')}</div>
+      <div class="c-entry"><strong>Entry:</strong> ${escapeHtml(p.entry || '')}</div>
+    </div>`).join('');
+  return `<div class="congregation-map">${nodes}</div>`;
+}
+
+function renderHooks(d) {
+  const cards = (d.hooks || []).map((h, i) => {
+    const type = (h.type || 'curiosity').toLowerCase();
+    const label = type === 'fear' ? 'Fear' : type === 'desire' ? 'Desire' : 'Curiosity';
+    return `
+      <div class="hook-card ${type}">
+        <div class="h-badge">Hook ${i + 1} · ${label}</div>
+        <div class="h-num">${i + 1}</div>
+        <div class="h-text">${escapeHtml(h.text || '')}</div>
+        <button class="h-copy" onclick="copyText(this, ${JSON.stringify(JSON.stringify(h.text || '')).replace(/"/g,'&quot;')})">⎘ Copy hook</button>
+      </div>`;
+  }).join('');
+  return `<div class="hook-stack">${cards}</div>`;
+}
+
+function renderTraffic(d) {
+  d = d || {};
+  const tierClass = { controlled: 't1', earned: 't2', owned: 't3' };
+  const tierTag = { controlled: 'Type 01 · You Control', earned: 'Type 02 · You Earn', owned: 'Type 03 · You Own' };
+  const tierArr = Array.isArray(d.tiers) ? d.tiers : [];
+  const tiers = tierArr.map((t, i) => {
+    const cls = tierClass[t.tier] || ['t1','t2','t3'][i] || 't1';
+    const tag = tierTag[t.tier] || '';
+    const arrow = i < (tierArr.length - 1) ? '<div class="funnel-arrow">▼</div>' : '';
+    return `
+      <div class="funnel-tier ${cls}">
+        <div class="f-tag">${escapeHtml(tag)}</div>
+        <div class="f-title">${escapeHtml(t.title || '')}</div>
+        <div class="f-detail">${escapeHtml(t.detail || '')}</div>
+      </div>${arrow}`;
+  }).join('');
+
+  const sq = d.squeeze || {};
+  const squeeze = (sq.headline || sq.sub || sq.cta) ? `
+    <div class="squeeze-preview">
+      <div class="sq-label">★ Squeeze Page Preview</div>
+      <div class="sq-headline">${escapeHtml(sq.headline || '')}</div>
+      <div class="sq-sub">${escapeHtml(sq.sub || '')}</div>
+      <div class="sq-field">
+        <div class="sq-input">your@email.com</div>
+        <button class="sq-cta">${escapeHtml(sq.cta || 'Get It')}</button>
+      </div>
+    </div>` : '';
+
+  const proj = Array.isArray(d.projection) ? d.projection : [];
+  let projBlock = '';
+  if (proj.length) {
+    const maxVal = Math.max(...proj.map(p => Number(p.value) || 0), 1);
+    const bars = proj.map(p => {
+      const pct = Math.round(((Number(p.value) || 0) / maxVal) * 100);
+      return `
+        <div class="proj-row">
+          <div class="proj-label">${escapeHtml(p.label || '')}</div>
+          <div class="proj-bar-track">
+            <div class="proj-bar-fill" data-width="${pct}"><span>${escapeHtml(String(p.value || 0))}</span></div>
+          </div>
+        </div>`;
+    }).join('');
+    projBlock = `
+      <div class="projection">
+        <div class="projection-head">📈 90-Day List Growth Projection</div>
+        ${bars}
+      </div>`;
+  }
+
+  if (!tiers && !squeeze && !projBlock) throw new Error('empty traffic');
+  return `<div class="funnel">${tiers}</div>${squeeze}${projBlock}`;
+}
+
+function renderAction(d) {
+  d = d || {};
+  const arr = Array.isArray(d.days) ? d.days : [];
+  if (!arr.length) throw new Error('empty action');
+  const items = arr.map(day => {
+    const tasks = (Array.isArray(day.tasks) ? day.tasks : []).map(t => `<li>${escapeHtml(t)}</li>`).join('');
+    return `
+      <div class="tl-item">
+        <div class="tl-day">${escapeHtml(day.day || '')}</div>
+        <div class="tl-card">
+          <div class="tl-title">${escapeHtml(day.title || '')}</div>
+          <ul class="tl-tasks">${tasks}</ul>
+        </div>
+      </div>`;
+  }).join('');
+  return `<div class="timeline">${items}</div>`;
+}
+
+function copyText(btn, text) {
   navigator.clipboard.writeText(text).then(() => {
-    const btn = event.target;
     const orig = btn.textContent;
     btn.textContent = '✓ Copied!';
     setTimeout(() => { btn.textContent = orig; }, 2000);
@@ -1416,9 +1950,8 @@ function resetAll() {
   document.querySelectorAll('.congregation-card').forEach(el => el.classList.remove('selected'));
   document.querySelectorAll('.traffic-option').forEach(el => el.classList.remove('selected'));
   document.querySelectorAll('.ai-response').forEach(el => {
-    const textEl = el.querySelector('.ai-response-text');
-    textEl.innerHTML = '';
-    textEl.classList.add('ai-prose');
+    const body = el.querySelector('.ai-response-body');
+    if (body) body.innerHTML = '';
     el.classList.remove('visible');
   });
   goToStep(1);
