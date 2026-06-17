@@ -1,0 +1,1430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dream Customer Finder — Impact</title>
+<link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:ital,wght@0,400;0,600;0,700;0,800;1,600;1,700;1,800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --red: #e90d41;
+  --red-deep: #c10836;
+  --ink: #0a0a0a;
+  --page: #f7f7f8;
+  --pink: #fdecf1;
+  --yellow: #fbf3da;
+  --green: #eafaf1;
+  --border: #e2e2e6;
+  --muted: #777;
+  --mono: 'JetBrains Mono', monospace;
+  --display: 'Rethink Sans', sans-serif;
+  --body: 'Inter', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--page);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 15px;
+  line-height: 1.6;
+  background-image: 
+    linear-gradient(rgba(0,0,0,0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,0.035) 1px, transparent 1px);
+  background-size: 28px 28px;
+  min-height: 100vh;
+}
+
+/* TOP BAR */
+.topbar {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--ink);
+  border-bottom: 3px solid var(--red);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 2rem;
+  height: 52px;
+}
+.topbar-brand {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: #fff;
+  letter-spacing: -0.01em;
+}
+.topbar-brand span { color: var(--red); }
+.topbar-right { display: flex; align-items: center; gap: 1rem; }
+.topbar-label {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(255,255,255,0.4);
+}
+.btn-pdf {
+  background: var(--red);
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  padding: 0.38rem 1rem;
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-pdf:hover { background: var(--red-deep); }
+
+/* WRAPPER */
+.wrap { max-width: 900px; margin: 0 auto; padding: 3rem 2rem 5rem; }
+
+/* HERO */
+.hero { margin-bottom: 2rem; }
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--red);
+  margin-bottom: 0.75rem;
+}
+.hero h1 {
+  font-family: var(--display);
+  font-size: clamp(2.2rem, 5vw, 3.2rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  margin-bottom: 1rem;
+}
+.hero h1 em { color: var(--red); font-style: italic; }
+.hero-sub {
+  font-size: 1rem;
+  color: #555;
+  max-width: 580px;
+  line-height: 1.6;
+  font-weight: 400;
+}
+.hero-line {
+  width: 60px; height: 3px;
+  background: var(--red);
+  margin: 1.5rem 0;
+}
+
+/* PROGRESS PILLS */
+.progress-pills {
+  display: flex; flex-wrap: wrap; gap: 0.5rem;
+  margin-bottom: 2.5rem;
+}
+.pill {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  background: var(--ink);
+  color: #fff;
+  border-radius: 20px;
+  padding: 0.35rem 0.95rem 0.35rem 0.4rem;
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  cursor: pointer;
+  transition: all 0.15s;
+  border: none;
+}
+.pill:not(.disabled):hover { background: var(--red); }
+.pill.active { background: var(--red); }
+.pill.done { background: #1a1a1a; }
+.pill.done .pill-num { background: #22c55e; }
+.pill.disabled { opacity: 0.4; cursor: not-allowed; }
+.pill-num {
+  background: var(--red);
+  color: #fff;
+  border-radius: 50%;
+  width: 20px; height: 20px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.62rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.pill.active .pill-num { background: #fff; color: var(--red); }
+
+/* PANES */
+.pane { display: none; }
+.pane.active { display: block; }
+
+/* SECTION CARD */
+.section-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-left: 5px solid var(--red);
+  border-radius: 0 10px 10px 0;
+  padding: 2rem 2rem 2rem 1.75rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.045);
+}
+.sec-label {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--red);
+  margin-bottom: 0.5rem;
+}
+.section-card h2 {
+  font-family: var(--display);
+  font-size: 1.7rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  margin-bottom: 0.7rem;
+}
+.section-card h2 em { color: var(--red); font-style: italic; }
+.section-card .sec-desc {
+  color: #555;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+  max-width: 640px;
+}
+
+/* CATEGORY BANNER */
+.cat-banner {
+  background: var(--ink);
+  color: #fff;
+  border-radius: 7px;
+  padding: 0.7rem 1.25rem;
+  margin: 1.5rem 0 1rem;
+  display: flex; align-items: center; gap: 0.75rem;
+}
+.cat-banner-label {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(255,255,255,0.45);
+  white-space: nowrap;
+}
+.cat-banner-title {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+.cat-banner-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--red);
+  flex-shrink: 0;
+}
+
+/* QUESTIONS */
+.q-block {
+  margin-bottom: 1.25rem;
+  background: var(--page);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.1rem 1.25rem;
+}
+.q-label {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--red);
+  margin-bottom: 0.4rem;
+}
+.q-text {
+  font-family: var(--display);
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 0.7rem;
+  line-height: 1.4;
+  color: var(--ink);
+}
+textarea, input[type="text"] {
+  width: 100%;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 0.92rem;
+  padding: 0.75rem 1rem;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  line-height: 1.5;
+}
+textarea:focus, input[type="text"]:focus {
+  border-color: var(--red);
+  box-shadow: 0 0 0 3px rgba(233,13,65,0.08);
+}
+textarea::placeholder, input::placeholder {
+  color: #aaa;
+  font-style: italic;
+  font-size: 0.88rem;
+}
+
+/* HINT CHIPS */
+.hint-chips { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.65rem; }
+.hint-chip {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 0.25rem 0.7rem;
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.03em;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.hint-chip:hover {
+  border-color: var(--red);
+  color: var(--red);
+  background: var(--pink);
+}
+
+/* AI ASSIST */
+.ai-assist-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--ink);
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.55rem 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 0.85rem;
+}
+.ai-assist-btn::before {
+  content: '✦';
+  color: var(--red);
+}
+.ai-assist-btn:hover { background: var(--red); }
+.ai-assist-btn:hover::before { color: #fff; }
+.ai-assist-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.spinner {
+  width: 11px; height: 11px;
+  border: 1.5px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: none;
+}
+.ai-assist-btn.loading .spinner { display: block; }
+.ai-assist-btn.loading::before { display: none; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* AI RESPONSE */
+.ai-response {
+  margin-top: 1rem;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--red);
+  border-radius: 8px;
+  padding: 1rem 1.25rem 1.15rem;
+  display: none;
+}
+.ai-response.visible { display: block; }
+.ai-response-label {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 600;
+}
+
+/* Clean formatted Claude output */
+.ai-prose {
+  font-family: var(--body);
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: #333;
+}
+.ai-prose > *:first-child { margin-top: 0; }
+.ai-prose > *:last-child { margin-bottom: 0; }
+.ai-prose p { margin: 0 0 0.85rem; }
+.ai-prose h2,
+.ai-prose h3,
+.ai-prose h4 {
+  font-family: var(--display);
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.35;
+  margin: 1.15rem 0 0.5rem;
+}
+.ai-prose h2 { font-size: 1.05rem; }
+.ai-prose h3 { font-size: 1rem; }
+.ai-prose h4 { font-size: 0.95rem; }
+.ai-prose ul,
+.ai-prose ol {
+  margin: 0 0 0.9rem;
+  padding-left: 1.4rem;
+}
+.ai-prose li {
+  margin-bottom: 0.45rem;
+  padding-left: 0.1rem;
+}
+.ai-prose li::marker { color: var(--red); }
+.ai-prose strong { font-weight: 600; color: var(--ink); }
+.ai-prose em { font-style: italic; }
+.ai-prose code {
+  font-family: var(--mono);
+  font-size: 0.84em;
+  background: var(--page);
+  border: 1px solid var(--border);
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+}
+
+/* CONGREGATION GRID */
+.congregation-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 0.6rem;
+  margin: 1rem 0 1.5rem;
+}
+.congregation-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.95rem 0.6rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+}
+.congregation-card:hover {
+  border-color: var(--red);
+  transform: translateY(-1px);
+}
+.congregation-card.selected {
+  border-color: var(--red);
+  background: var(--pink);
+}
+.congregation-card .icon { font-size: 1.35rem; margin-bottom: 0.3rem; }
+.congregation-card .name {
+  font-family: var(--display);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+/* TRAFFIC OPTIONS — like .tool component */
+.traffic-options { display: flex; flex-direction: column; gap: 0.6rem; margin: 1rem 0; }
+.traffic-option {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem 1.2rem;
+  display: flex; gap: 1rem; align-items: flex-start;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.traffic-option:hover { border-color: var(--red); }
+.traffic-option.selected {
+  border-color: var(--red);
+  background: var(--pink);
+}
+.traffic-icon {
+  width: 38px; height: 38px;
+  background: var(--pink);
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+.traffic-option.selected .traffic-icon { background: #fff; }
+.t-name {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin-bottom: 0.15rem;
+}
+.t-tag {
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--red);
+  margin-bottom: 0.3rem;
+}
+.t-desc { font-size: 0.83rem; color: #555; line-height: 1.5; }
+
+/* NAV ROW */
+.nav-row {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 2rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.btn-next {
+  background: var(--red);
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  padding: 0.85rem 1.75rem;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 0.92rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  letter-spacing: -0.01em;
+}
+.btn-next:hover { background: var(--red-deep); transform: translateY(-1px); }
+.btn-back {
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 0.8rem 1.25rem;
+  font-family: var(--body);
+  font-weight: 500;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-back:hover { color: var(--ink); border-color: var(--ink); }
+
+/* CALLOUT */
+.callout {
+  border-radius: 8px;
+  padding: 1.1rem 1.25rem;
+  margin: 1.25rem 0;
+  display: flex; gap: 0.9rem; align-items: flex-start;
+}
+.callout.red { background: var(--pink); border-left: 4px solid var(--red); }
+.callout.yellow { background: var(--yellow); border-left: 4px solid #f0a500; }
+.callout.green { background: var(--green); border-left: 4px solid #22c55e; }
+.callout-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 0.05rem; }
+.callout-head {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 0.92rem;
+  margin-bottom: 0.2rem;
+}
+.callout.red .callout-head { color: var(--red-deep); }
+.callout.yellow .callout-head { color: #8a5e00; }
+.callout.green .callout-head { color: #166534; }
+.callout-text { font-size: 0.86rem; color: #444; line-height: 1.55; }
+
+/* OUTPUT — readable blueprint blocks */
+.snippet {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 0;
+}
+.snippet-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.65rem 1rem;
+  background: var(--page);
+  border-bottom: 1px solid var(--border);
+}
+.snippet-label {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+}
+.copy-btn {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  padding: 0.25rem 0.65rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.copy-btn:hover { background: var(--red); color: #fff; border-color: var(--red); }
+.snippet-body {
+  padding: 1.25rem 1.4rem;
+  min-height: 60px;
+}
+.snippet-loading {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-style: italic;
+  font-family: var(--body);
+}
+.snippet-loading-spinner {
+  width: 13px; height: 13px;
+  border: 2px solid rgba(233,13,65,0.2);
+  border-top-color: var(--red);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+/* OUTPUT BLOCK CONTAINER */
+.output-block {
+  margin-bottom: 1.25rem;
+}
+
+/* ACTION GRID — tool component style */
+.action-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.7rem;
+  margin: 1.5rem 0;
+}
+.action-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem 1.1rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.action-card:hover { border-color: var(--red); transform: translateY(-1px); }
+.action-card-icon {
+  width: 34px; height: 34px;
+  background: var(--pink);
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem;
+  margin-bottom: 0.65rem;
+}
+.action-card-title {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 0.92rem;
+  margin-bottom: 0.2rem;
+}
+.action-card-desc {
+  font-size: 0.78rem;
+  color: #555;
+  line-height: 1.45;
+}
+
+/* CLOSER */
+.closer {
+  background: var(--ink);
+  color: #fff;
+  border-radius: 10px;
+  padding: 2rem 2.5rem;
+  text-align: center;
+  margin-top: 2.5rem;
+}
+.closer-quote {
+  font-family: var(--display);
+  font-size: 1.3rem;
+  font-weight: 700;
+  font-style: italic;
+  line-height: 1.35;
+  margin-bottom: 0.55rem;
+}
+.closer-quote em { color: var(--red); }
+.closer-sub {
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.45);
+  font-family: var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* PROFILE TABLE */
+.profile {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.5rem 0 1rem;
+  font-size: 0.86rem;
+  background: var(--page);
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.profile tr { border-bottom: 1px solid var(--border); }
+.profile tr:last-child { border-bottom: none; }
+.profile td { padding: 0.6rem 0.85rem; vertical-align: top; }
+.profile td:first-child {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--red);
+  white-space: nowrap;
+  width: 150px;
+  font-weight: 500;
+}
+.profile td:last-child { color: #333; }
+
+@media print {
+  .topbar { position: static; }
+  .btn-pdf, .btn-next, .btn-back, .ai-assist-btn { display: none; }
+  body { background: white; background-image: none; }
+  .pane { display: block !important; }
+  .progress-pills { display: none; }
+}
+
+@media (max-width: 720px) {
+  .wrap { padding: 2rem 1rem 4rem; }
+  .topbar { padding: 0 1rem; }
+  .topbar-label { display: none; }
+  .section-card { padding: 1.5rem 1.25rem 1.5rem 1rem; }
+  .action-grid { grid-template-columns: 1fr; }
+  .congregation-grid { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-brand">SOLVETECH <span>IMPACT</span></div>
+  <div class="topbar-right">
+    <div class="topbar-label">Built with Masud's AI Team</div>
+    <button class="btn-pdf" onclick="window.print()">↓ Save PDF</button>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="eyebrow">A Solvetech Tool · Powered by Masud's AI Team</div>
+    <h1>Find Your Dream<br>Customer In <em>4 Steps.</em></h1>
+    <div class="hero-line"></div>
+    <div class="hero-sub">Answer 4 short sections. Masud's AI Team builds your complete dream customer profile, congregation map, hooks, traffic plan, and Week 1 action checklist — done for you in under 60 seconds.</div>
+  </div>
+
+  <!-- PROGRESS PILLS -->
+  <div class="progress-pills" id="progressPills"></div>
+
+  <!-- STEP 1 -->
+  <div class="pane active" id="step1">
+    <div class="section-card">
+      <div class="sec-label">Step 01 — Psychographic Avatar</div>
+      <h2>Who Is Your <em>Dream Customer?</em></h2>
+      <div class="sec-desc">Forget basic demographics. We want desires, fears, language, and internal world. Psychographic, not spreadsheet.</div>
+
+      <div class="q-block">
+        <div class="q-label">01 — Product / Service</div>
+        <div class="q-text">What are you selling, and what transformation does it create?</div>
+        <textarea id="q1_product" rows="2" placeholder="e.g. AI automation systems for real estate agents that save 10+ hrs/week on lead follow-up"></textarea>
+      </div>
+
+      <div class="q-block">
+        <div class="q-label">02 — Demographics (Baseline)</div>
+        <div class="q-text">Age range, gender, income level, geography — the basics.</div>
+        <input type="text" id="q1_demo" placeholder="e.g. 35-52, mostly men, $150K-$500K income, US-based real estate investors">
+      </div>
+
+      <div class="q-block">
+        <div class="q-label">03 — Desires &amp; Aspirations</div>
+        <div class="q-text">What do they want MORE THAN ANYTHING in life or business?</div>
+        <textarea id="q1_desires" rows="3" placeholder="e.g. Close 3-5 more deals/month without hiring, be seen as a tech-forward agent, scale without burning out..."></textarea>
+        <div class="hint-chips">
+          <span class="hint-chip" onclick="appendHint('q1_desires', 'Financial freedom')">Financial freedom</span>
+          <span class="hint-chip" onclick="appendHint('q1_desires', 'More clients without more work')">More clients, less work</span>
+          <span class="hint-chip" onclick="appendHint('q1_desires', 'Respect in their industry')">Industry respect</span>
+          <span class="hint-chip" onclick="appendHint('q1_desires', 'Work-life balance')">Work-life balance</span>
+          <span class="hint-chip" onclick="appendHint('q1_desires', 'Be seen as an authority')">Authority status</span>
+        </div>
+      </div>
+
+      <div class="q-block">
+        <div class="q-label">04 — Pains &amp; Frustrations</div>
+        <div class="q-text">What keeps them up at night? What problem do they talk about with peers?</div>
+        <textarea id="q1_pains" rows="3" placeholder="e.g. Manually following up with 200+ leads, losing deals to faster agents, drowning in admin work..."></textarea>
+        <div class="hint-chips">
+          <span class="hint-chip" onclick="appendHint('q1_pains', 'Too much manual work')">Too much manual work</span>
+          <span class="hint-chip" onclick="appendHint('q1_pains', 'Wasted ad spend')">Wasted ad spend</span>
+          <span class="hint-chip" onclick="appendHint('q1_pains', 'Low conversion rates')">Low conversions</span>
+          <span class="hint-chip" onclick="appendHint('q1_pains', 'No time to focus on growth')">No time to grow</span>
+          <span class="hint-chip" onclick="appendHint('q1_pains', 'Inconsistent revenue')">Inconsistent revenue</span>
+        </div>
+      </div>
+
+      <div class="q-block">
+        <div class="q-label">05 — Their Exact Language</div>
+        <div class="q-text">What words/phrases do they use? What do they Google? What do they say in Facebook groups?</div>
+        <textarea id="q1_language" rows="2" placeholder="e.g. 'how to automate lead follow-up', 'best CRM for real estate', 'real estate automation tools'..."></textarea>
+        <button class="ai-assist-btn" onclick="getAIAssist('step1')" id="btn_step1">
+          <div class="spinner"></div>
+          <span class="btn-label">Masud, Please Help Me Fill This</span>
+        </button>
+        <div class="ai-response" id="ai_step1">
+          <div class="ai-response-label">✦ Masud's AI Team Suggestions</div>
+          <div class="ai-response-text ai-prose"></div>
+        </div>
+      </div>
+    </div>
+    <div class="nav-row">
+      <button class="btn-next" onclick="goToStep(2)">Next: Where Are They →</button>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="pane" id="step2">
+    <div class="section-card">
+      <div class="sec-label">Step 02 — Congregation Mapping</div>
+      <h2>Where Do They <em>Congregate?</em></h2>
+      <div class="sec-desc">Your dream customers are already gathered somewhere. Select all that apply, then add specifics.</div>
+
+      <div class="cat-banner">
+        <div class="cat-banner-dot"></div>
+        <div class="cat-banner-label">Step 1 of 2</div>
+        <div class="cat-banner-title">Select Congregation Types</div>
+      </div>
+
+      <div class="congregation-grid" id="congregationGrid">
+        <div class="congregation-card" data-place="Facebook Groups" onclick="toggleCongregation(this)"><div class="icon">👥</div><div class="name">Facebook Groups</div></div>
+        <div class="congregation-card" data-place="YouTube Channels" onclick="toggleCongregation(this)"><div class="icon">▶️</div><div class="name">YouTube</div></div>
+        <div class="congregation-card" data-place="Podcasts" onclick="toggleCongregation(this)"><div class="icon">🎙️</div><div class="name">Podcasts</div></div>
+        <div class="congregation-card" data-place="LinkedIn Groups" onclick="toggleCongregation(this)"><div class="icon">💼</div><div class="name">LinkedIn</div></div>
+        <div class="congregation-card" data-place="Reddit Subreddits" onclick="toggleCongregation(this)"><div class="icon">🔴</div><div class="name">Reddit</div></div>
+        <div class="congregation-card" data-place="Email Newsletters" onclick="toggleCongregation(this)"><div class="icon">📧</div><div class="name">Newsletters</div></div>
+        <div class="congregation-card" data-place="Industry Conferences" onclick="toggleCongregation(this)"><div class="icon">🎪</div><div class="name">Conferences</div></div>
+        <div class="congregation-card" data-place="Instagram / TikTok" onclick="toggleCongregation(this)"><div class="icon">📱</div><div class="name">IG / TikTok</div></div>
+        <div class="congregation-card" data-place="Industry Blogs" onclick="toggleCongregation(this)"><div class="icon">📰</div><div class="name">Blogs</div></div>
+        <div class="congregation-card" data-place="Mastermind Groups" onclick="toggleCongregation(this)"><div class="icon">🧠</div><div class="name">Masterminds</div></div>
+        <div class="congregation-card" data-place="Discord Communities" onclick="toggleCongregation(this)"><div class="icon">💬</div><div class="name">Discord</div></div>
+        <div class="congregation-card" data-place="Amazon / Books" onclick="toggleCongregation(this)"><div class="icon">📚</div><div class="name">Amazon / Books</div></div>
+      </div>
+
+      <div class="cat-banner">
+        <div class="cat-banner-dot"></div>
+        <div class="cat-banner-label">Step 2 of 2</div>
+        <div class="cat-banner-title">Name Actual Places</div>
+      </div>
+
+      <div class="q-block">
+        <div class="q-label">Specifics</div>
+        <div class="q-text">List actual names: real Facebook groups, YouTube channels, podcasts, newsletters they subscribe to.</div>
+        <textarea id="q2_specific" rows="4" placeholder="e.g. BiggerPockets Facebook Group (300K members), Real Estate Rockstars Podcast, Agent Mastermind FB Group, Tom Ferry YouTube..."></textarea>
+        <button class="ai-assist-btn" onclick="getAIAssist('step2')" id="btn_step2">
+          <div class="spinner"></div>
+          <span class="btn-label">Masud, Find Congregations For Me</span>
+        </button>
+        <div class="ai-response" id="ai_step2">
+          <div class="ai-response-label">✦ Masud's AI Team Suggestions</div>
+          <div class="ai-response-text ai-prose"></div>
+        </div>
+      </div>
+    </div>
+    <div class="nav-row">
+      <button class="btn-back" onclick="goToStep(1)">← Back</button>
+      <button class="btn-next" onclick="goToStep(3)">Next: The Interrupt →</button>
+    </div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="pane" id="step3">
+    <div class="section-card">
+      <div class="sec-label">Step 03 — Attention &amp; Hook</div>
+      <h2>What Will <em>Interrupt</em> Them?</h2>
+      <div class="sec-desc">They're already engaged in their congregation. What would make them stop, click, and pay attention to YOU?</div>
+
+      <div class="callout red">
+        <div class="callout-icon">📰</div>
+        <div>
+          <div class="callout-head">The Enquirer Principle</div>
+          <div class="callout-text">Use a strange visual + a short punchy headline. Curiosity, fear, or shocking stat — pick one and lead with it.</div>
+        </div>
+      </div>
+
+      <div class="q-block">
+        <div class="q-label">01 — Their Biggest Fear or Curiosity</div>
+        <div class="q-text">What statement or question would instantly grab them? Think tabloid headline energy.</div>
+        <textarea id="q3_hook" rows="2" placeholder="e.g. 'Are you losing deals because you respond 2 hours too late?' or 'Why the top 1% of agents never manually follow up'"></textarea>
+        <div class="hint-chips">
+          <span class="hint-chip" onclick="appendHint('q3_hook', 'Warning: [problem they ignore]')">Warning: [problem]</span>
+          <span class="hint-chip" onclick="appendHint('q3_hook', 'The hidden cost of [their current method]')">Hidden cost of...</span>
+          <span class="hint-chip" onclick="appendHint('q3_hook', 'Why [dream outcome] is simpler than you think')">Why it's simpler than...</span>
+          <span class="hint-chip" onclick="appendHint('q3_hook', 'The #1 mistake [avatar] makes with [problem]')">The #1 mistake...</span>
+        </div>
+      </div>
+
+      <div class="q-block">
+        <div class="q-label">02 — Bait / Lead Magnet</div>
+        <div class="q-text">What free thing would they almost always say yes to? This is your "click here" moment.</div>
+        <textarea id="q3_bait" rows="2" placeholder="e.g. 'Free 5-minute AI lead follow-up script' or 'The 7-day automation checklist for real estate agents'"></textarea>
+      </div>
+
+      <div class="q-block">
+        <div class="q-label">03 — The Ad/Post Hook</div>
+        <div class="q-text">Draft the first 2 lines of an ad, post, or DM that would stop them mid-scroll.</div>
+        <textarea id="q3_ad" rows="3" placeholder="e.g. '73% of real estate deals are lost in the first 5 minutes of lead response. Here's how the top agents fix it in 1 hour with AI...'"></textarea>
+        <button class="ai-assist-btn" onclick="getAIAssist('step3')" id="btn_step3">
+          <div class="spinner"></div>
+          <span class="btn-label">Masud, Generate 3 Hooks For Me</span>
+        </button>
+        <div class="ai-response" id="ai_step3">
+          <div class="ai-response-label">✦ Masud's AI Team Suggestions</div>
+          <div class="ai-response-text ai-prose"></div>
+        </div>
+      </div>
+    </div>
+    <div class="nav-row">
+      <button class="btn-back" onclick="goToStep(2)">← Back</button>
+      <button class="btn-next" onclick="goToStep(4)">Next: Traffic Plan →</button>
+    </div>
+  </div>
+
+  <!-- STEP 4 -->
+  <div class="pane" id="step4">
+    <div class="section-card">
+      <div class="sec-label">Step 04 — Traffic Strategy</div>
+      <h2>How Will You <em>Own The Traffic?</em></h2>
+      <div class="sec-desc">3 traffic types. One goal — convert all of it into traffic you OWN (your email list).</div>
+
+      <div class="q-block">
+        <div class="q-label">Traffic Mix</div>
+        <div class="q-text">Which traffic types are you using or planning to use? Select all that apply.</div>
+        <div class="traffic-options">
+          <div class="traffic-option" data-traffic="controlled" onclick="toggleTraffic(this)">
+            <div class="traffic-icon">🎯</div>
+            <div>
+              <div class="t-tag">Type 01 — Paid</div>
+              <div class="t-name">Traffic You CONTROL</div>
+              <div class="t-desc">Facebook Ads, Google Ads, solo ads, affiliates. You pay, you direct it anywhere.</div>
+            </div>
+          </div>
+          <div class="traffic-option" data-traffic="uncontrolled" onclick="toggleTraffic(this)">
+            <div class="traffic-icon">🌊</div>
+            <div>
+              <div class="t-tag">Type 02 — Earned</div>
+              <div class="t-name">Traffic You DON'T CONTROL</div>
+              <div class="t-desc">SEO, social posts, YouTube, guest blogs, PR, word of mouth.</div>
+            </div>
+          </div>
+          <div class="traffic-option" data-traffic="owned" onclick="toggleTraffic(this)">
+            <div class="traffic-icon">👑</div>
+            <div>
+              <div class="t-tag">Type 03 — The Goal</div>
+              <div class="t-name">Traffic You OWN</div>
+              <div class="t-desc">Your email list, SMS list, community. Message them anytime. Zero marginal cost.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="q-block">
+        <div class="q-label">Squeeze Page</div>
+        <div class="q-text">Where will ALL traffic land first to give you their email?</div>
+        <textarea id="q4_squeeze" rows="2" placeholder="e.g. Landing page offering 'Free AI Follow-Up Script' — one opt-in field, no menu, no exit. Hosted on Systeme.io."></textarea>
+      </div>
+
+      <div class="q-block">
+        <div class="q-label">List Status</div>
+        <div class="q-text">How big is your list today? What's your 90-day target?</div>
+        <input type="text" id="q4_list" placeholder="e.g. Currently: 200 subscribers. 90-day target: 1,000.">
+        <button class="ai-assist-btn" onclick="getAIAssist('step4')" id="btn_step4">
+          <div class="spinner"></div>
+          <span class="btn-label">Masud, Build My Growth Plan</span>
+        </button>
+        <div class="ai-response" id="ai_step4">
+          <div class="ai-response-label">✦ Masud's AI Team Suggestions</div>
+          <div class="ai-response-text ai-prose"></div>
+        </div>
+      </div>
+    </div>
+    <div class="nav-row">
+      <button class="btn-back" onclick="goToStep(3)">← Back</button>
+      <button class="btn-next" onclick="generateOutput()">Generate My Blueprint →</button>
+    </div>
+  </div>
+
+  <!-- OUTPUT PANE -->
+  <div class="pane" id="output">
+    <div class="section-card">
+      <div class="sec-label">Output — Your Blueprint</div>
+      <h2>Your Dream Customer <em>Blueprint.</em></h2>
+      <div class="sec-desc">Built by Masud's AI Team from your inputs. Each block has a Copy button — paste directly into your ads, content briefs, and funnels.</div>
+
+      <div class="cat-banner">
+        <div class="cat-banner-dot"></div>
+        <div class="cat-banner-label">01</div>
+        <div class="cat-banner-title">Avatar Profile</div>
+      </div>
+      <div class="output-block">
+        <div class="snippet">
+          <div class="snippet-head">
+            <div class="snippet-label">Complete Avatar — Who They Are</div>
+            <button class="copy-btn" onclick="copyOutput('out_avatar')">⎘ Copy</button>
+          </div>
+          <div class="snippet-body" id="out_avatar"><div class="snippet-loading"><div class="snippet-loading-spinner"></div>Building your avatar...</div></div>
+        </div>
+      </div>
+
+      <div class="cat-banner">
+        <div class="cat-banner-dot"></div>
+        <div class="cat-banner-label">02</div>
+        <div class="cat-banner-title">Congregation Map</div>
+      </div>
+      <div class="output-block">
+        <div class="snippet">
+          <div class="snippet-head">
+            <div class="snippet-label">Where They Gather — Specific Places</div>
+            <button class="copy-btn" onclick="copyOutput('out_congregation')">⎘ Copy</button>
+          </div>
+          <div class="snippet-body" id="out_congregation"><div class="snippet-loading"><div class="snippet-loading-spinner"></div>Mapping congregations...</div></div>
+        </div>
+      </div>
+
+      <div class="cat-banner">
+        <div class="cat-banner-dot"></div>
+        <div class="cat-banner-label">03</div>
+        <div class="cat-banner-title">Top 3 Interrupt Hooks</div>
+      </div>
+      <div class="output-block">
+        <div class="snippet">
+          <div class="snippet-head">
+            <div class="snippet-label">Ready-to-Deploy Ad Hooks</div>
+            <button class="copy-btn" onclick="copyOutput('out_hooks')">⎘ Copy</button>
+          </div>
+          <div class="snippet-body" id="out_hooks"><div class="snippet-loading"><div class="snippet-loading-spinner"></div>Crafting hooks...</div></div>
+        </div>
+      </div>
+
+      <div class="cat-banner">
+        <div class="cat-banner-dot"></div>
+        <div class="cat-banner-label">04</div>
+        <div class="cat-banner-title">Traffic + List Building Plan</div>
+      </div>
+      <div class="output-block">
+        <div class="snippet">
+          <div class="snippet-head">
+            <div class="snippet-label">90-Day Traffic Strategy</div>
+            <button class="copy-btn" onclick="copyOutput('out_traffic')">⎘ Copy</button>
+          </div>
+          <div class="snippet-body" id="out_traffic"><div class="snippet-loading"><div class="snippet-loading-spinner"></div>Building traffic plan...</div></div>
+        </div>
+      </div>
+
+      <div class="cat-banner">
+        <div class="cat-banner-dot"></div>
+        <div class="cat-banner-label">05</div>
+        <div class="cat-banner-title">Week 1 Action Plan</div>
+      </div>
+      <div class="output-block">
+        <div class="snippet">
+          <div class="snippet-head">
+            <div class="snippet-label">Day-by-Day Execution</div>
+            <button class="copy-btn" onclick="copyOutput('out_action')">⎘ Copy</button>
+          </div>
+          <div class="snippet-body" id="out_action"><div class="snippet-loading"><div class="snippet-loading-spinner"></div>Generating action plan...</div></div>
+        </div>
+      </div>
+
+      <div class="callout green">
+        <div class="callout-icon">✅</div>
+        <div>
+          <div class="callout-head">Your Blueprint Is Ready</div>
+          <div class="callout-text">Every block above is copy-ready. Paste directly into your strategy doc, ad manager, content brief, or funnel builder. This is your operating system — update it as your business evolves.</div>
+        </div>
+      </div>
+
+      <div class="action-grid">
+        <div class="action-card" onclick="window.print()">
+          <div class="action-card-icon">📄</div>
+          <div class="action-card-title">Save as PDF</div>
+          <div class="action-card-desc">Export your blueprint as a polished PDF for your team or client deck.</div>
+        </div>
+        <div class="action-card">
+          <div class="action-card-icon">🎯</div>
+          <div class="action-card-title">Next: Value Ladder</div>
+          <div class="action-card-desc">You have the customer. Now design the offers that walk them up your ladder.</div>
+        </div>
+        <div class="action-card">
+          <div class="action-card-icon">⚡</div>
+          <div class="action-card-title">Build Squeeze Page</div>
+          <div class="action-card-desc">Use Hook 1 as the headline. One field. One button. Live in 2 hours.</div>
+        </div>
+        <div class="action-card" onclick="resetAll()">
+          <div class="action-card-icon">🔄</div>
+          <div class="action-card-title">Start Over</div>
+          <div class="action-card-desc">Build a profile for a different product or client.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn-back" onclick="goToStep(4)">← Edit My Inputs</button>
+    </div>
+
+    <!-- CLOSER -->
+    <div class="closer">
+      <div class="closer-quote">"The riches are in the niches.<br>But the sales are in the <em>congregations.</em>"</div>
+      <div class="closer-sub">Solvetech Solutions · Dream Customer Framework</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const STEPS = [
+  { label: 'Dream Customer', num: '01' },
+  { label: 'Congregations', num: '02' },
+  { label: 'The Interrupt', num: '03' },
+  { label: 'Traffic Plan', num: '04' },
+];
+
+let currentStep = 1;
+let completedSteps = new Set();
+let selectedCongregations = [];
+let selectedTraffic = [];
+
+function escapeHtml(text) {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function formatInline(text) {
+  return text
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/`(.+?)`/g, '<code>$1</code>');
+}
+
+function formatParagraph(line) {
+  if (line.includes('**') || line.includes('`')) {
+    return `<p>${formatInline(line)}</p>`;
+  }
+
+  const labelMatch = line.match(/^([A-Za-z#][^:]{0,58}):\s*(.*)$/);
+  if (labelMatch) {
+    const label = labelMatch[1].trim();
+    const rest = labelMatch[2].trim();
+    if (rest) {
+      return `<p><strong>${label}:</strong> ${formatInline(rest)}</p>`;
+    }
+    return `<p><strong>${label}</strong></p>`;
+  }
+
+  return `<p>${formatInline(line)}</p>`;
+}
+
+function formatAIResponse(text) {
+  if (!text) return '';
+
+  const lines = escapeHtml(text).split('\n');
+  let html = '';
+  let inUl = false;
+  let inOl = false;
+
+  const closeLists = () => {
+    if (inUl) { html += '</ul>'; inUl = false; }
+    if (inOl) { html += '</ol>'; inOl = false; }
+  };
+
+  for (const rawLine of lines) {
+    const line = rawLine.trim();
+
+    if (!line) {
+      closeLists();
+      continue;
+    }
+
+    const heading = line.match(/^(#{1,3})\s+(.+)$/);
+    if (heading) {
+      closeLists();
+      const tag = heading[1].length === 1 ? 'h2' : heading[1].length === 2 ? 'h3' : 'h4';
+      html += `<${tag}>${formatInline(heading[2])}</${tag}>`;
+      continue;
+    }
+
+    const bullet = line.match(/^[-*•]\s+(.+)$/);
+    if (bullet) {
+      if (!inUl) { closeLists(); html += '<ul>'; inUl = true; }
+      html += `<li>${formatInline(bullet[1])}</li>`;
+      continue;
+    }
+
+    const numbered = line.match(/^\d+\.\s+(.+)$/);
+    if (numbered) {
+      if (!inOl) { closeLists(); html += '<ol>'; inOl = true; }
+      html += `<li>${formatInline(numbered[1])}</li>`;
+      continue;
+    }
+
+    closeLists();
+    html += formatParagraph(line);
+  }
+
+  closeLists();
+  return html;
+}
+
+function renderAIContent(el, text) {
+  el.classList.add('ai-prose');
+  el.innerHTML = formatAIResponse(text);
+}
+
+function buildProgressPills() {
+  const bar = document.getElementById('progressPills');
+  bar.innerHTML = '';
+  STEPS.forEach((s, i) => {
+    const btn = document.createElement('button');
+    const isActive = i + 1 === currentStep;
+    const isDone = completedSteps.has(i + 1);
+    const isAccessible = isActive || isDone;
+    btn.className = 'pill' + (isActive ? ' active' : '') + (isDone ? ' done' : '') + (!isAccessible ? ' disabled' : '');
+    btn.innerHTML = `<span class="pill-num">${isDone ? '✓' : s.num}</span> ${s.label}`;
+    btn.onclick = () => { if (isAccessible) goToStep(i + 1); };
+    bar.appendChild(btn);
+  });
+}
+
+function goToStep(n) {
+  document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
+  const pane = document.getElementById('step' + n);
+  if (pane) {
+    pane.classList.add('active');
+    currentStep = n;
+    if (n > 1) for (let i = 1; i < n; i++) completedSteps.add(i);
+  }
+  buildProgressPills();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function toggleCongregation(el) {
+  el.classList.toggle('selected');
+  const place = el.dataset.place;
+  if (el.classList.contains('selected')) {
+    if (!selectedCongregations.includes(place)) selectedCongregations.push(place);
+  } else {
+    selectedCongregations = selectedCongregations.filter(p => p !== place);
+  }
+}
+
+function toggleTraffic(el) {
+  el.classList.toggle('selected');
+  const type = el.dataset.traffic;
+  if (el.classList.contains('selected')) {
+    if (!selectedTraffic.includes(type)) selectedTraffic.push(type);
+  } else {
+    selectedTraffic = selectedTraffic.filter(t => t !== type);
+  }
+}
+
+function getTrafficLabel(type) {
+  const labels = {
+    controlled: 'Traffic You CONTROL (paid)',
+    uncontrolled: 'Traffic You DON\'T CONTROL (earned)',
+    owned: 'Traffic You OWN (email list / community)',
+  };
+  return labels[type] || type;
+}
+
+function appendHint(id, text) {
+  const el = document.getElementById(id);
+  if (el.value && !el.value.endsWith(', ')) el.value += ', ';
+  el.value += text;
+}
+
+async function getAIAssist(step) {
+  const btn = document.getElementById('btn_' + step);
+  const responseEl = document.getElementById('ai_' + step);
+  const responseText = responseEl.querySelector('.ai-response-text');
+  btn.classList.add('loading');
+  btn.disabled = true;
+
+  const product = document.getElementById('q1_product').value.trim();
+  const demo = document.getElementById('q1_demo').value.trim();
+  const desires = document.getElementById('q1_desires').value.trim();
+  const pains = document.getElementById('q1_pains').value.trim();
+  const language = document.getElementById('q1_language').value.trim();
+
+  let prompt = '';
+  if (step === 'step1') {
+    prompt = `I'm building a dream customer profile for: "${product || 'not specified'}".
+Demographics: ${demo || 'unknown'}.
+Desires so far: ${desires || 'unknown'}.
+Pains so far: ${pains || 'unknown'}.
+
+Help me fill in gaps:
+1. Additional desires and pains this customer might have
+2. Exact phrases/words they use when searching or talking about their problem
+3. What their internal monologue sounds like
+Concise, specific, practical. No generic advice.`;
+  } else if (step === 'step2') {
+    const specific = document.getElementById('q2_specific').value.trim();
+    prompt = `Dream customer: ${product || 'unknown'} for ${demo || 'unknown audience'}.
+Desires: ${desires || 'unknown'}. Pains: ${pains || 'unknown'}.
+Selected congregation types: ${selectedCongregations.join(', ') || 'none yet'}.
+Specific places mentioned: ${specific || 'none'}.
+
+List 8-10 SPECIFIC congregation spots where this customer hangs out. Include real Facebook group names (with member counts if known), YouTube channels, podcasts, newsletters, subreddits. Ultra-specific. No generic answers.`;
+  } else if (step === 'step3') {
+    const hook = document.getElementById('q3_hook').value.trim();
+    prompt = `Dream customer: ${product || 'unknown'} for ${demo || 'unknown'}.
+#1 pain: ${pains || 'unknown'}. #1 desire: ${desires || 'unknown'}.
+Language: ${language || 'unknown'}.
+Partial hook: ${hook || 'none yet'}.
+
+Generate 3 POWERFUL Enquirer-style interrupt hooks. Each should be 1-2 sentences, lead with curiosity/fear/shocking stat, use their exact language, and make them want to click immediately. Label them Hook 1, Hook 2, Hook 3.`;
+  } else if (step === 'step4') {
+    const squeeze = document.getElementById('q4_squeeze').value.trim();
+    const listSize = document.getElementById('q4_list').value.trim();
+    prompt = `Dream customer: ${product || 'unknown'} for ${demo || 'unknown'}.
+Congregations: ${selectedCongregations.join(', ') || 'unknown'}.
+Traffic mix selected: ${selectedTraffic.map(getTrafficLabel).join(', ') || 'none yet'}.
+Squeeze page: ${squeeze || 'not built yet'}.
+Current list: ${listSize || 'unknown'}.
+
+Give a concrete 30-day traffic growth plan to build my email list. Include: top 3 traffic sources, daily/weekly actions for each, squeeze page optimization tip, realistic list growth projection. Specific and actionable. No fluff.`;
+  }
+
+  try {
+    const resp = await fetch('/api/claude', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await resp.json();
+    const text = data.content?.map(b => b.text || '').join('') || 'No response.';
+    renderAIContent(responseText, text);
+    responseEl.classList.add('visible');
+  } catch (e) {
+    responseText.classList.add('ai-prose');
+    responseText.innerHTML = '<p>Could not reach Masud right now. Check your connection and try again.</p>';
+    responseEl.classList.add('visible');
+  }
+  btn.classList.remove('loading');
+  btn.disabled = false;
+}
+
+async function generateOutput() {
+  completedSteps.add(4);
+  document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
+  document.getElementById('output').classList.add('active');
+  buildProgressPills();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  const product = document.getElementById('q1_product').value;
+  const demo = document.getElementById('q1_demo').value;
+  const desires = document.getElementById('q1_desires').value;
+  const pains = document.getElementById('q1_pains').value;
+  const language = document.getElementById('q1_language').value;
+  const specific = document.getElementById('q2_specific').value;
+  const hook = document.getElementById('q3_hook').value;
+  const bait = document.getElementById('q3_bait').value;
+  const ad = document.getElementById('q3_ad').value;
+  const squeeze = document.getElementById('q4_squeeze').value;
+  const listSize = document.getElementById('q4_list').value;
+
+  const context = `
+Product/Service: ${product}
+Demographics: ${demo}
+Desires: ${desires}
+Pains: ${pains}
+Language: ${language}
+Congregations (types): ${selectedCongregations.join(', ')}
+Specific places: ${specific}
+Hook ideas: ${hook}
+Lead magnet: ${bait}
+Ad draft: ${ad}
+Squeeze page: ${squeeze}
+List size: ${listSize}
+Traffic mix: ${selectedTraffic.map(getTrafficLabel).join(', ') || 'none selected'}
+  `.trim();
+
+  const sections = [
+    {
+      id: 'out_avatar',
+      prompt: `Based on this dream customer research:\n\n${context}\n\nWrite a full Dream Customer Avatar. Include: Name, age, role; Core desires; Core fears; Daily frustrations; How they talk about their problem; What a win looks like. Format clearly. Specific, not generic.`
+    },
+    {
+      id: 'out_congregation',
+      prompt: `Based on this:\n\n${context}\n\nWrite a Congregation Map. List: 5 specific online places they gather (with names), 2 offline congregations, what they talk about in each, best entry point for each. Numbered list format.`
+    },
+    {
+      id: 'out_hooks',
+      prompt: `Based on this:\n\n${context}\n\nWrite the Top 3 Enquirer Interrupt Hooks. Each 2-3 sentences. Start with pattern interrupt (stat, question, or bold claim). Use their exact language. Label: Hook 1 (Fear-based), Hook 2 (Curiosity-based), Hook 3 (Desire-based).`
+    },
+    {
+      id: 'out_traffic',
+      prompt: `Based on this:\n\n${context}\n\nWrite Traffic + List Building Strategy: 1) Controlled traffic — top 2 paid channels + targeting; 2) Uncontrolled — top 2 organic channels + what to publish; 3) Squeeze page — headline, subheadline, CTA; 4) 90-day list projection. Concrete. No theory.`
+    },
+    {
+      id: 'out_action',
+      prompt: `Based on this:\n\n${context}\n\nWrite a Week 1 Action Plan. Day 1-2, Day 3-4, Day 5-7. Each task specific, doable in under 3 hours, moves toward first 100 subscribers. Tight.`
+    }
+  ];
+
+  for (const section of sections) {
+    generateSection(section.id, section.prompt);
+    await new Promise(r => setTimeout(r, 400));
+  }
+}
+
+async function generateSection(id, prompt) {
+  const el = document.getElementById(id);
+  try {
+    const resp = await fetch('/api/claude', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await resp.json();
+    const text = data.content?.map(b => b.text || '').join('') || 'Could not generate.';
+    renderAIContent(el, text);
+  } catch (e) {
+    el.classList.add('ai-prose');
+    el.innerHTML = '<p>Error generating this section. Try again.</p>';
+  }
+}
+
+function copyOutput(id) {
+  const text = document.getElementById(id).innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = event.target;
+    const orig = btn.textContent;
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => { btn.textContent = orig; }, 2000);
+  });
+}
+
+function resetAll() {
+  currentStep = 1;
+  completedSteps.clear();
+  selectedCongregations = [];
+  selectedTraffic = [];
+  document.querySelectorAll('textarea, input[type="text"]').forEach(el => el.value = '');
+  document.querySelectorAll('.congregation-card').forEach(el => el.classList.remove('selected'));
+  document.querySelectorAll('.traffic-option').forEach(el => el.classList.remove('selected'));
+  document.querySelectorAll('.ai-response').forEach(el => {
+    const textEl = el.querySelector('.ai-response-text');
+    textEl.innerHTML = '';
+    textEl.classList.add('ai-prose');
+    el.classList.remove('visible');
+  });
+  goToStep(1);
+}
+
+buildProgressPills();
+</script>
+</body>
+</html>

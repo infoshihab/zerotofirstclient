@@ -1,0 +1,9 @@
+{
+  "name": "dream-customer-finder",
+  "version": "1.0.0",
+  "description": "Solvetech Dream Customer Finder — Impact design system + Masud's AI Team",
+  "private": true,
+  "engines": {
+    "node": ">=18.x"
+  }
+}
